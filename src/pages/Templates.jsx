@@ -20,9 +20,9 @@ function Templates() {
       .catch((error) => console.error('Error fetching templates:', error));
   }, []);
 
-  const handleDelete = (id) => {
-    fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' })
-      .then(() => setTemplates((prev) => prev.filter((template) => template.id !== id)))
+  const handleDelete = (_id) => {
+    fetch(`${API_BASE_URL}/${_id}`, { method: 'DELETE' })
+      .then(() => setTemplates((prev) => prev.filter((template) => template._id !== _id)))
       .catch((error) => console.error('Error deleting template:', error));
   };
 
@@ -36,7 +36,7 @@ function Templates() {
       />
       <ul className="mt-8 space-y-6">
         {templates.map((template) => (
-          <li key={template.id} className="p-6 bg-white rounded-lg shadow-md">
+          <li key={template._id} className="p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-xl font-semibold text-gray-800">{template.name}</h2>
             <p className="text-gray-600 mt-2">{template.content}</p>
             <div className="mt-4 flex space-x-4">
@@ -48,7 +48,7 @@ function Templates() {
               </button>
               <button
                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                onClick={() => handleDelete(template.id)}
+                onClick={() => handleDelete(template._id)}
               >
                 Delete
               </button>

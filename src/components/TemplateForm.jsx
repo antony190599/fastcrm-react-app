@@ -19,8 +19,8 @@ function TemplateForm({ editingTemplate, setEditingTemplate, setTemplates }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const method = editingTemplate ? 'PUT' : 'POST';
-    const url = editingTemplate && editingTemplate.id
-      ? `${API_BASE_URL}/${editingTemplate.id}`
+    const url = editingTemplate && editingTemplate._id
+      ? `${API_BASE_URL}/${editingTemplate._id}`
       : `${API_BASE_URL}`;
 
     fetch(url, {
@@ -38,7 +38,7 @@ function TemplateForm({ editingTemplate, setEditingTemplate, setTemplates }) {
         setTemplates((prev) => {
           if (editingTemplate) {
             return prev.map((template) =>
-              template.id === newTemplate.id ? newTemplate : template
+              template._id === newTemplate._id ? newTemplate : template
             );
           } else {
             return [...prev, newTemplate];
