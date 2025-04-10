@@ -5,14 +5,20 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 function TemplateForm({ editingTemplate, setEditingTemplate, setTemplates }) {
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
+  const [type, setType] = useState('');
+  const [labels, setLabels] = useState([]);
 
   useEffect(() => {
     if (editingTemplate) {
       setName(editingTemplate.name || '');
       setContent(editingTemplate.content || '');
+      setType(editingTemplate.type || '');
+      setLabels(editingTemplate.labels || []);
     } else {
       setName('');
       setContent('');
+      setType('');
+      setLabels([]);
     }
   }, [editingTemplate]);
 
@@ -26,7 +32,7 @@ function TemplateForm({ editingTemplate, setEditingTemplate, setTemplates }) {
     fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, content }),
+      body: JSON.stringify({ type, labels, name, content }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -45,6 +51,8 @@ function TemplateForm({ editingTemplate, setEditingTemplate, setTemplates }) {
           }
         });
         setEditingTemplate(null);
+        setType('');
+        setLabels([]);
         setName('');
         setContent('');
       })
@@ -53,6 +61,27 @@ function TemplateForm({ editingTemplate, setEditingTemplate, setTemplates }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-md">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Type</label>
+        <input
+          type="text"
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
+          placeholder="Enter template type"
+          required
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700">Labels</label>
+        <input
+          type="text"
+          value={labels.join(', ')}
+          onChange={(e) => setLabels(e.target.value.split(',').map((label) => label.trim()))}
+          className="w-full mt-1 p-3 border border-gray-300 rounded-lg"
+          placeholder="Enter labels (comma-separated)"
+        />
+      </div>
       <div>
         <label className="block text-sm font-semibold text-gray-700">Name</label>
         <input
