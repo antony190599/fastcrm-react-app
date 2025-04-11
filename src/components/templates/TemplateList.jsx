@@ -85,9 +85,9 @@ const TemplateList = () => {
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
               <option value="">Todos</option>
-              {templates.map((template) => (
-                <option key={template.type} value={template.type}>
-                  {template.type}
+              {['bienvenida', 'seguimiento', ...new Set(templates.map((template) => template.type))].map((type) => (
+                <option key={type} value={type}>
+                  {type}
                 </option>
               ))}
             </select>
