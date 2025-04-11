@@ -159,7 +159,7 @@ const TemplateList = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {templates.map((template) => (
+                  {Array.isArray(templates) && templates.map((template) => (
                     <tr key={template._id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
