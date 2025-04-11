@@ -26,9 +26,10 @@ const TemplateList = () => {
       if (filters.q && filters.q.length >= 2) validFilters.q = filters.q;
       
       const data = await templateService.getTemplates(validFilters);
-      setTemplates(data);
+      setTemplates(Array.isArray(data) ? data : []); // Ensure templates is always an array
       setError(null);
     } catch (err) {
+      setTemplates([]); // Reset templates to an empty array on error
       setError(err.message || 'Error al cargar las plantillas');
     } finally {
       setLoading(false);
@@ -84,8 +85,11 @@ const TemplateList = () => {
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
               <option value="">Todos</option>
-              <option value="seguimiento">Seguimiento</option>
-              <option value="bienvenida">Bienvenida</option>
+              {templates.map((template) => (
+                <option key={template.type} value={template.type}>
+                  {template.type}
+                </option>
+              ))}
             </select>
           </div>
           
