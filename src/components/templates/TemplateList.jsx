@@ -25,8 +25,9 @@ const TemplateList = () => {
       if (filters.type) validFilters.type = filters.type;
       if (filters.q && filters.q.length >= 2) validFilters.q = filters.q;
       
-      const data = await templateService.getTemplates(validFilters);
-      setTemplates(Array.isArray(data) ? data : []); // Ensure templates is always an array
+      const response = await templateService.getTemplates(validFilters);
+      console.log('Fetched templates:', response); // Debugging line
+      setTemplates(Array.isArray(response.data) ? response.data : []); // Ensure templates is always an array
       setError(null);
     } catch (err) {
       setTemplates([]); // Reset templates to an empty array on error
@@ -138,7 +139,7 @@ const TemplateList = () => {
               No se encontraron plantillas con los filtros seleccionados.
             </div>
           ) : (
-            <div className="bg-white shadow rounded-lg overflow-hidden">
+            <div className="bg-white shadow rounded-lg overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -164,7 +165,7 @@ const TemplateList = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {Array.isArray(templates) && templates.map((template) => (
-                    <tr key={template._id}>
+                    <tr key={template.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           template.type === 'seguimiento' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
@@ -194,13 +195,13 @@ const TemplateList = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <Link 
-                          to={`/templates/edit/${template._id}`}
+                          to={`/templates/edit/${template.id}`}
                           className="text-blue-600 hover:text-blue-900 mr-4"
                         >
                           Editar
                         </Link>
                         <button
-                          onClick={() => handleDelete(template._id)}
+                          onClick={() => handleDelete(template.id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           Eliminar
