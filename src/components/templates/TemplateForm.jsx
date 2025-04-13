@@ -14,7 +14,7 @@ const validationSchema = yup.object().shape({
     .string()
     .required('El autor es requerido')
     .min(3, 'El nombre del autor debe tener al menos 3 caracteres'),
-  labels: yup.array().of(yup.string())
+  labels: yup.array().of(yup.string()).min(1, 'Se requiere al menos una etiqueta')
 });
 
 const TemplateForm = ({ isEditing = false }) => {
@@ -146,7 +146,7 @@ const TemplateForm = ({ isEditing = false }) => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="mx-auto px-4 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">
           {isEditing ? 'Editar Plantilla' : 'Nueva Plantilla'}
