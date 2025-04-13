@@ -1,7 +1,21 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import templateService from '../../services/templateService';
+import * as yup from 'yup';
+
+// Define validation schema
+const validationSchema = yup.object().shape({
+  type: yup.string().required('El tipo es requerido'),
+  content: yup
+    .string()
+    .required('El contenido es requerido')
+    .min(10, 'El contenido debe tener al menos 10 caracteres'),
+  author: yup
+    .string()
+    .required('El autor es requerido')
+    .min(3, 'El nombre del autor debe tener al menos 3 caracteres'),
+  labels: yup.array().of(yup.string())
+});
 
 const TemplateForm = ({ isEditing = false }) => {
   const { id } = useParams();
@@ -18,6 +32,7 @@ const TemplateForm = ({ isEditing = false }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
     if (isEditing && id) {
@@ -30,10 +45,10 @@ const TemplateForm = ({ isEditing = false }) => {
       setLoading(true);
       const template = await templateService.getTemplateById(id);
       setFormData({
-        type: template.type || 'seguimiento',
-        content: template.content || '',
-        author: template.author || '',
-        labels: template.labels || []
+        type: template.data.type || 'seguimiento',
+        content: template.data.content || '',
+        author: template.data.author || '',
+        labels: template.data.labels || []
       });
     } catch (err) {
       setError(err.message || 'Error al cargar la plantilla');
@@ -42,12 +57,24 @@ const TemplateForm = ({ isEditing = false }) => {
     }
   };
 
-  const handleChange = (e) => {
+  const validateField = async (name, value) => {
+    try {
+      await yup.reach(validationSchema, name).validate(value);
+      setValidationErrors(prev => ({ ...prev, [name]: undefined }));
+      return true;
+    } catch (err) {
+      setValidationErrors(prev => ({ ...prev, [name]: err.message }));
+      return false;
+    }
+  };
+
+  const handleChange = async (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
+    await validateField(name, value);
   };
 
   const handleLabelInputChange = (e) => {
@@ -71,9 +98,26 @@ const TemplateForm = ({ isEditing = false }) => {
     }));
   };
 
+  const validateForm = async () => {
+    try {
+      await validationSchema.validate(formData, { abortEarly: false });
+      setValidationErrors({});
+      return true;
+    } catch (err) {
+      const errors = {};
+      err.inner.forEach(e => {
+        errors[e.path] = e.message;
+      });
+      setValidationErrors(errors);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    const isValid = await validateForm();
+    if (!isValid) return;
+
     try {
       setLoading(true);
       setError(null);
@@ -84,7 +128,6 @@ const TemplateForm = ({ isEditing = false }) => {
       } else {
         await templateService.createTemplate(formData);
         setSuccess('Plantilla creada correctamente');
-        // Limpiar el formulario después de crear
         setFormData({
           type: 'seguimiento',
           content: '',
@@ -93,10 +136,7 @@ const TemplateForm = ({ isEditing = false }) => {
         });
       }
       
-      // Redireccionar después de un breve delay para mostrar el mensaje de éxito
-      setTimeout(() => {
-        navigate('/templates');
-      }, 1500);
+      navigate('/templates');
       
     } catch (err) {
       setError(err.message || 'Error al guardar la plantilla');
@@ -113,7 +153,6 @@ const TemplateForm = ({ isEditing = false }) => {
         </h1>
       </div>
 
-      {/* Mensajes de error y éxito */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
@@ -126,14 +165,13 @@ const TemplateForm = ({ isEditing = false }) => {
         </div>
       )}
 
-      {/* Formulario */}
       <div className="bg-white shadow rounded-lg p-6">
         {loading && !isEditing ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="type">
                 Tipo *
@@ -143,12 +181,15 @@ const TemplateForm = ({ isEditing = false }) => {
                 name="type"
                 value={formData.type}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className={`w-full border ${validationErrors.type ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
                 required
               >
                 <option value="seguimiento">Seguimiento</option>
                 <option value="bienvenida">Bienvenida</option>
               </select>
+              {validationErrors.type && (
+                <p className="mt-1 text-xs text-red-600">{validationErrors.type}</p>
+              )}
             </div>
             
             <div className="mb-4">
@@ -161,10 +202,13 @@ const TemplateForm = ({ isEditing = false }) => {
                 value={formData.content}
                 onChange={handleChange}
                 rows="5"
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className={`w-full border ${validationErrors.content ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
                 placeholder="Escribe el contenido de la plantilla..."
                 required
               ></textarea>
+              {validationErrors.content && (
+                <p className="mt-1 text-xs text-red-600">{validationErrors.content}</p>
+              )}
             </div>
             
             <div className="mb-4">
@@ -177,10 +221,13 @@ const TemplateForm = ({ isEditing = false }) => {
                 name="author"
                 value={formData.author}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className={`w-full border ${validationErrors.author ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
                 placeholder="Nombre del autor"
                 required
               />
+              {validationErrors.author && (
+                <p className="mt-1 text-xs text-red-600">{validationErrors.author}</p>
+              )}
             </div>
             
             <div className="mb-6">
@@ -203,6 +250,9 @@ const TemplateForm = ({ isEditing = false }) => {
                   Añadir
                 </button>
               </div>
+              {validationErrors.labels && (
+                <p className="mt-1 text-xs text-red-600">{validationErrors.labels}</p>
+              )}
               
               {formData.labels.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2">

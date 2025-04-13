@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import templateService from '../../services/templateService';
+import DeleteConfirmation from '../common/DeleteConfirmation';
 
 const TemplateList = () => {
   const [templates, setTemplates] = useState([]);
@@ -10,6 +11,10 @@ const TemplateList = () => {
   const [filters, setFilters] = useState({
     type: '',
     q: ''
+  });
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    isOpen: false,
+    templateId: null
   });
 
   useEffect(() => {
@@ -21,16 +26,14 @@ const TemplateList = () => {
       setLoading(true);
       const validFilters = {};
       
-      // Solo incluir filtros con valores
       if (filters.type) validFilters.type = filters.type;
       if (filters.q && filters.q.length >= 2) validFilters.q = filters.q;
       
       const response = await templateService.getTemplates(validFilters);
-      console.log('Fetched templates:', response); // Debugging line
-      setTemplates(Array.isArray(response.data) ? response.data : []); // Ensure templates is always an array
+      setTemplates(Array.isArray(response.data) ? response.data : []);
       setError(null);
     } catch (err) {
-      setTemplates([]); // Reset templates to an empty array on error
+      setTemplates([]);
       setError(err.message || 'Error al cargar las plantillas');
     } finally {
       setLoading(false);
@@ -50,15 +53,28 @@ const TemplateList = () => {
     fetchTemplates();
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar esta plantilla?')) {
-      try {
-        await templateService.deleteTemplate(id);
-        // Refrescar la lista después de eliminar
-        fetchTemplates();
-      } catch (err) {
-        setError(err.message || 'Error al eliminar la plantilla');
-      }
+  const openDeleteConfirmation = (id) => {
+    setDeleteConfirmation({
+      isOpen: true,
+      templateId: id
+    });
+  };
+
+  const closeDeleteConfirmation = () => {
+    setDeleteConfirmation({
+      isOpen: false,
+      templateId: null
+    });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await templateService.deleteTemplate(deleteConfirmation.templateId);
+      fetchTemplates();
+      closeDeleteConfirmation();
+    } catch (err) {
+      setError(err.message || 'Error al eliminar la plantilla');
+      closeDeleteConfirmation();
     }
   };
 
@@ -74,7 +90,6 @@ const TemplateList = () => {
         </Link>
       </div>
 
-      {/* Filtros */}
       <div className="bg-white shadow rounded-lg p-6 mb-6">
         <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -86,7 +101,7 @@ const TemplateList = () => {
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
               <option value="">Todos</option>
-              {['bienvenida', 'seguimiento', ...new Set(templates.map((template) => template.type))].map((type) => (
+              {['bienvenida', 'seguimiento'].map((type) => (
                 <option key={type} value={type}>
                   {type}
                 </option>
@@ -120,14 +135,12 @@ const TemplateList = () => {
         </form>
       </div>
 
-      {/* Mensajes de error */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
 
-      {/* Estado de carga */}
       {loading ? (
         <div className="flex justify-center py-8">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
@@ -201,7 +214,7 @@ const TemplateList = () => {
                           Editar
                         </Link>
                         <button
-                          onClick={() => handleDelete(template.id)}
+                          onClick={() => openDeleteConfirmation(template.id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           Eliminar
@@ -215,6 +228,14 @@ const TemplateList = () => {
           )}
         </>
       )}
+
+      <DeleteConfirmation
+        isOpen={deleteConfirmation.isOpen}
+        onClose={closeDeleteConfirmation}
+        onConfirm={confirmDelete}
+        title="Eliminar Plantilla"
+        message="¿Estás seguro de que deseas eliminar esta plantilla? Esta acción no se puede deshacer."
+      />
     </div>
   );
 };

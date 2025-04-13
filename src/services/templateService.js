@@ -1,7 +1,7 @@
 // filepath: d:\dev1\fastcrm-react-app\src\services\templateService.js
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/templates';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const templateService = {
   getTemplates: async (filters = {}) => {
@@ -16,7 +16,7 @@ const templateService = {
         params.append('q', filters.q);
       }
 
-      const response = await axios.get(API_URL, { params }); // Elimina `/templates`
+      const response = await axios.get(`${API_URL}/api/templates`, { params }); // Elimina `/templates`
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Error al obtener plantillas' };
@@ -25,7 +25,7 @@ const templateService = {
 
   getTemplateById: async (id) => {
     try {
-      const response = await axios.get(`${API_URL}/${id}`); // Elimina `/templates`
+        const response = await axios.get(`${API_URL}/api/templates/${id}`); // Elimina `/templates`
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Error al obtener la plantilla' };
@@ -34,7 +34,7 @@ const templateService = {
 
   createTemplate: async (templateData) => {
     try {
-      const response = await axios.post(API_URL, templateData); // Elimina `/templates`
+        const response = await axios.post(`${API_URL}/api/templates`, templateData); // Elimina `/templates`
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Error al crear la plantilla' };
@@ -43,7 +43,7 @@ const templateService = {
 
   updateTemplate: async (id, templateData) => {
     try {
-      const response = await axios.put(`${API_URL}/${id}`, templateData); // Elimina `/templates`
+        const response = await axios.put(`${API_URL}/api/templates/${id}`, templateData); // Elimina `/templates`
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Error al actualizar la plantilla' };
@@ -52,7 +52,7 @@ const templateService = {
 
   deleteTemplate: async (id) => {
     try {
-      const response = await axios.delete(`${API_URL}/${id}`); // Elimina `/templates`
+        const response = await axios.delete(`${API_URL}/api/templates/${id}`); // Elimina `/templates`
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Error al eliminar la plantilla' };
