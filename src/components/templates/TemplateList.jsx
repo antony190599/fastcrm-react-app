@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import templateService from '../../services/templateService';
 import DeleteConfirmation from '../common/DeleteConfirmation';
+import Modal from '../common/Modal';
 
 const TemplateList = () => {
   const [templates, setTemplates] = useState([]);
@@ -15,6 +15,11 @@ const TemplateList = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState({
     isOpen: false,
     templateId: null
+  });
+  // Add state for template preview modal
+  const [previewModal, setPreviewModal] = useState({
+    isOpen: false,
+    template: null
   });
   
   // Pagination state
@@ -109,6 +114,20 @@ const TemplateList = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [filters]);
+
+  const openPreviewModal = (template) => {
+    setPreviewModal({
+      isOpen: true,
+      template
+    });
+  };
+
+  const closePreviewModal = () => {
+    setPreviewModal({
+      isOpen: false,
+      template: null
+    });
+  };
 
   return (
     <div className="mx-auto px-4 py-8">
@@ -240,6 +259,12 @@ const TemplateList = () => {
                           {new Date(template.createdAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => openPreviewModal(template)}
+                            className="text-gray-600 hover:text-gray-900 mr-4"
+                          >
+                            Ver
+                          </button>
                           <Link 
                             to={`/templates/edit/${template.id}`}
                             className="text-blue-600 hover:text-blue-900 mr-4"
@@ -341,6 +366,68 @@ const TemplateList = () => {
         title="Eliminar Plantilla"
         message="¿Estás seguro de que deseas eliminar esta plantilla? Esta acción no se puede deshacer."
       />
+
+      {/* Add Template Preview Modal */}
+      <Modal
+        isOpen={previewModal.isOpen}
+        onClose={closePreviewModal}
+        title="Detalle de Plantilla"
+        size="lg"
+      >
+        {previewModal.template && (
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Tipo</h3>
+              <p className="mt-1">
+                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  previewModal.template.type === 'seguimiento' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {previewModal.template.type}
+                </span>
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Contenido</h3>
+              <div className="mt-1 bg-gray-50 p-4 rounded border border-gray-200 whitespace-pre-wrap">
+                {previewModal.template.content}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Autor</h3>
+              <p className="mt-1">{previewModal.template.author}</p>
+            </div>
+            
+            {previewModal.template.labels && previewModal.template.labels.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Etiquetas</h3>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {previewModal.template.labels.map((label, index) => (
+                    <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div>
+              <h3 className="text-sm font-medium text-gray-500">Fecha de Creación</h3>
+              <p className="mt-1">{new Date(previewModal.template.createdAt).toLocaleDateString()}</p>
+            </div>
+            
+            <div className="pt-4 flex justify-end">
+              <button
+                onClick={closePreviewModal}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
