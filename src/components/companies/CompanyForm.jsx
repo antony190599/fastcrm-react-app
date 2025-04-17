@@ -6,6 +6,7 @@ import * as yup from 'yup';
 // Define validation schema
 const validationSchema = yup.object().shape({
   name: yup.string().required('El nombre es requerido'),
+  ruc: yup.string().matches(/^[0-9]{11}$/, 'El RUC debe tener 11 dígitos numéricos'),
   industry: yup.string(),
   website: yup.string().url('Debe ser una URL válida'),
   address: yup.string()
@@ -17,6 +18,7 @@ const CompanyForm = ({ isEditing = false }) => {
   
   const [formData, setFormData] = useState({
     name: '',
+    ruc: '',
     industry: '',
     website: '',
     address: ''
@@ -39,6 +41,7 @@ const CompanyForm = ({ isEditing = false }) => {
       const company = await companyService.getCompanyById(id);
       setFormData({
         name: company.data.name || '',
+        ruc: company.data.ruc || '',
         industry: company.data.industry || '',
         website: company.data.website || '',
         address: company.data.address || '',
@@ -103,6 +106,7 @@ const CompanyForm = ({ isEditing = false }) => {
         setFormData({
           name: '',
           industry: '',
+          ruc: '',
           website: '',
           address: ''
         });
@@ -162,7 +166,23 @@ const CompanyForm = ({ isEditing = false }) => {
                 <p className="mt-1 text-xs text-red-600">{validationErrors.name}</p>
               )}
             </div>
-            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="ruc">
+                RUC
+              </label>
+              <input
+                type="text"
+                id="ruc"
+                name="ruc"
+                value={formData.ruc}
+                onChange={handleChange}
+                className={`w-full border ${validationErrors.ruc ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
+                placeholder="Número de RUC"
+              />
+              {validationErrors.ruc && (
+                <p className="mt-1 text-xs text-red-600">{validationErrors.ruc}</p>
+              )}
+            </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="industry">
                 Industria
