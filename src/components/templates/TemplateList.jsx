@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import templateService from '../../services/templateService';
 import DeleteConfirmation from '../common/DeleteConfirmation';
 import Modal from '../common/Modal';
+import Pagination from '../common/Pagination';
 
 const TemplateList = () => {
   const [templates, setTemplates] = useState([]);
@@ -16,7 +17,7 @@ const TemplateList = () => {
     isOpen: false,
     templateId: null
   });
-  // Add state for template preview modal
+  // Template preview modal
   const [previewModal, setPreviewModal] = useState({
     isOpen: false,
     template: null
@@ -24,23 +25,40 @@ const TemplateList = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     fetchTemplates();
-  }, []);
+  }, [currentPage, itemsPerPage]);
 
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const validFilters = {};
+      const validFilters = {
+        page: currentPage,
+        limit: itemsPerPage
+      };
       
       if (filters.type) validFilters.type = filters.type;
       if (filters.q && filters.q.length >= 2) validFilters.q = filters.q;
       
       const response = await templateService.getTemplates(validFilters);
-      setTemplates(Array.isArray(response.data) ? response.data : []);
-      setError(null);
+      
+      if (response.success) {
+        setTemplates(response.data || []);
+        
+        // Update pagination state from API response
+        if (response.meta && response.meta.pagination) {
+          const { pagination } = response.meta;
+          setCurrentPage(pagination.currentPage);
+          setTotalPages(pagination.totalPages);
+          setTotalItems(pagination.totalItems);
+        }
+        
+        setError(null);
+      }
     } catch (err) {
       setTemplates([]);
       setError(err.message || 'Error al cargar las plantillas');
@@ -59,6 +77,7 @@ const TemplateList = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    setCurrentPage(1); // Reset to first page when searching
     fetchTemplates();
   };
 
@@ -87,33 +106,14 @@ const TemplateList = () => {
     }
   };
 
-  // Calculate pagination values
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = templates.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(templates.length / itemsPerPage);
-
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  
-  // Go to next page
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-  
-  // Go to previous page
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters]);
+  const handleItemsPerPageChange = (limit) => {
+    setItemsPerPage(limit);
+    setCurrentPage(1); // Reset to first page when changing items per page
+  };
 
   const openPreviewModal = (template) => {
     setPreviewModal({
@@ -229,7 +229,7 @@ const TemplateList = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(currentItems) && currentItems.map((template) => (
+                    {Array.isArray(templates) && templates.map((template) => (
                       <tr key={template.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -285,74 +285,14 @@ const TemplateList = () => {
               </div>
               
               {/* Pagination */}
-              {templates.length > itemsPerPage && (
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-lg">
-                  <div className="flex flex-1 justify-between sm:hidden">
-                    <button
-                      onClick={prevPage}
-                      disabled={currentPage === 1}
-                      className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 ${
-                        currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      Anterior
-                    </button>
-                    <button
-                      onClick={nextPage}
-                      disabled={currentPage === totalPages}
-                      className={`relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 ${
-                        currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      Siguiente
-                    </button>
-                  </div>
-                  
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Mostrando <span className="font-medium">{indexOfFirstItem + 1}</span> a <span className="font-medium">
-                          {Math.min(indexOfLastItem, templates.length)}
-                        </span> de <span className="font-medium">{templates.length}</span> resultados
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                        {/* Previous page button */}
-                        <button
-                          onClick={prevPage}
-                          disabled={currentPage === 1}
-                          className={`relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-medium ${
-                            currentPage === 1 
-                              ? 'text-gray-300 cursor-not-allowed' 
-                              : 'text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-                          } ring-1 ring-inset ring-gray-300`}
-                        >
-                          Anterior
-                        </button>
-                        
-                        {/* Page indicator */}
-                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300">
-                          Página {currentPage} de {totalPages}
-                        </span>
-                        
-                        {/* Next page button */}
-                        <button
-                          onClick={nextPage}
-                          disabled={currentPage === totalPages}
-                          className={`relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-medium ${
-                            currentPage === totalPages 
-                              ? 'text-gray-300 cursor-not-allowed' 
-                              : 'text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-                          } ring-1 ring-inset ring-gray-300`}
-                        >
-                          Siguiente
-                        </button>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
+              {totalPages > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  itemsPerPage={itemsPerPage}
+                  onItemsPerPageChange={handleItemsPerPageChange}
+                />
               )}
             </>
           )}
@@ -367,66 +307,14 @@ const TemplateList = () => {
         message="¿Estás seguro de que deseas eliminar esta plantilla? Esta acción no se puede deshacer."
       />
 
-      {/* Add Template Preview Modal */}
+      {/* Template Preview Modal */}
       <Modal
         isOpen={previewModal.isOpen}
         onClose={closePreviewModal}
         title="Detalle de Plantilla"
         size="lg"
       >
-        {previewModal.template && (
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Tipo</h3>
-              <p className="mt-1">
-                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  previewModal.template.type === 'seguimiento' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                }`}>
-                  {previewModal.template.type}
-                </span>
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Contenido</h3>
-              <div className="mt-1 bg-gray-50 p-4 rounded border border-gray-200 whitespace-pre-wrap">
-                {previewModal.template.content}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Autor</h3>
-              <p className="mt-1">{previewModal.template.author}</p>
-            </div>
-            
-            {previewModal.template.labels && previewModal.template.labels.length > 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Etiquetas</h3>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  {previewModal.template.labels.map((label, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
-                      {label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Fecha de Creación</h3>
-              <p className="mt-1">{new Date(previewModal.template.createdAt).toLocaleDateString()}</p>
-            </div>
-            
-            <div className="pt-4 flex justify-end">
-              <button
-                onClick={closePreviewModal}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        )}
+        {/* ...existing code... */}
       </Modal>
     </div>
   );

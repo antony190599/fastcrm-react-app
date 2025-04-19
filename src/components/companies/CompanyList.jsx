@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import companyService from '../../services/companyService';
 import DeleteConfirmation from '../common/DeleteConfirmation';
+import Pagination from '../common/Pagination';
 
 const CompanyList = () => {
   const [companies, setCompanies] = useState([]);
@@ -12,20 +13,39 @@ const CompanyList = () => {
     companyId: null
   });
   
-  // Add pagination state
+  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     fetchCompanies();
-  }, []);
+  }, [currentPage, itemsPerPage]);
 
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const response = await companyService.getCompanies();
-      setCompanies(Array.isArray(response.data) ? response.data : []);
-      setError(null);
+      const options = {
+        page: currentPage,
+        limit: itemsPerPage
+      };
+      
+      const response = await companyService.getCompanies(options);
+      
+      if (response.success) {
+        setCompanies(response.data || []);
+        
+        // Update pagination state from API response
+        if (response.meta && response.meta.pagination) {
+          const { pagination } = response.meta;
+          setCurrentPage(pagination.currentPage);
+          setTotalPages(pagination.totalPages);
+          setTotalItems(pagination.totalItems);
+        }
+        
+        setError(null);
+      }
     } catch (err) {
       setCompanies([]);
       setError(err.message || 'Error al cargar las empresas');
@@ -59,27 +79,13 @@ const CompanyList = () => {
     }
   };
 
-  // Calculate pagination values
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = companies.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(companies.length / itemsPerPage);
-
-  // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  
-  // Go to next page
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
-  
-  // Go to previous page
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
+
+  const handleItemsPerPageChange = (limit) => {
+    setItemsPerPage(limit);
+    setCurrentPage(1); // Reset to first page when changing items per page
   };
 
   return (
@@ -137,7 +143,7 @@ const CompanyList = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(currentItems) && currentItems.map((company) => (
+                    {Array.isArray(companies) && companies.map((company) => (
                       <tr key={company.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{company.name}</div>
@@ -192,74 +198,14 @@ const CompanyList = () => {
               </div>
               
               {/* Pagination */}
-              {companies.length > itemsPerPage && (
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-lg">
-                  <div className="flex flex-1 justify-between sm:hidden">
-                    <button
-                      onClick={prevPage}
-                      disabled={currentPage === 1}
-                      className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 ${
-                        currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      Anterior
-                    </button>
-                    <button
-                      onClick={nextPage}
-                      disabled={currentPage === totalPages}
-                      className={`relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 ${
-                        currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      Siguiente
-                    </button>
-                  </div>
-                  
-                  <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm text-gray-700">
-                        Mostrando <span className="font-medium">{indexOfFirstItem + 1}</span> a <span className="font-medium">
-                          {Math.min(indexOfLastItem, companies.length)}
-                        </span> de <span className="font-medium">{companies.length}</span> resultados
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                        {/* Previous page button */}
-                        <button
-                          onClick={prevPage}
-                          disabled={currentPage === 1}
-                          className={`relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-medium ${
-                            currentPage === 1 
-                              ? 'text-gray-300 cursor-not-allowed' 
-                              : 'text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-                          } ring-1 ring-inset ring-gray-300`}
-                        >
-                          Anterior
-                        </button>
-                        
-                        {/* Page indicator */}
-                        <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300">
-                          Página {currentPage} de {totalPages}
-                        </span>
-                        
-                        {/* Next page button */}
-                        <button
-                          onClick={nextPage}
-                          disabled={currentPage === totalPages}
-                          className={`relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-medium ${
-                            currentPage === totalPages 
-                              ? 'text-gray-300 cursor-not-allowed' 
-                              : 'text-gray-700 hover:bg-gray-50 focus:z-20 focus:outline-offset-0'
-                          } ring-1 ring-inset ring-gray-300`}
-                        >
-                          Siguiente
-                        </button>
-                      </nav>
-                    </div>
-                  </div>
-                </div>
+              {totalPages > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  itemsPerPage={itemsPerPage}
+                  onItemsPerPageChange={handleItemsPerPageChange}
+                />
               )}
             </>
           )}

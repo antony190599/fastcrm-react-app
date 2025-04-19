@@ -11,6 +11,15 @@ const contactService = {
         params.append('orderBy', options.orderBy);
       }
       
+      // Add pagination parameters
+      if (options.page) {
+        params.append('page', options.page);
+      }
+      
+      if (options.limit) {
+        params.append('limit', options.limit);
+      }
+      
       const response = await axios.get(`${API_URL}/api/contacts`, { params });
       return response.data;
     } catch (error) {

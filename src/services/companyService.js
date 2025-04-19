@@ -3,9 +3,20 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const companyService = {
-  getCompanies: async () => {
+  getCompanies: async (options = {}) => {
     try {
-      const response = await axios.get(`${API_URL}/api/companies`);
+      const params = new URLSearchParams();
+      
+      // Add pagination parameters
+      if (options.page) {
+        params.append('page', options.page);
+      }
+      
+      if (options.limit) {
+        params.append('limit', options.limit);
+      }
+      
+      const response = await axios.get(`${API_URL}/api/companies`, { params });
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Error al obtener empresas' };
