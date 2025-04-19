@@ -133,12 +133,14 @@ const TemplateList = () => {
     <div className="mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Plantillas de Contenido</h1>
-        <Link 
-          to="/templates/new" 
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-        >
-          Nueva Plantilla
-        </Link>
+        <div className="flex space-x-2">
+          <Link 
+            to="/templates/new" 
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            Nueva Plantilla
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white shadow rounded-lg p-6 mb-6">
@@ -271,6 +273,13 @@ const TemplateList = () => {
                           >
                             Editar
                           </Link>
+                          <Link
+                            to={`/templates/send`}
+                            state={{ template: template }}
+                            className="text-green-600 hover:text-green-900 mr-4"
+                          >
+                            Enviar
+                          </Link>
                           <button
                             onClick={() => openDeleteConfirmation(template.id)}
                             className="text-red-600 hover:text-red-900"
@@ -314,7 +323,38 @@ const TemplateList = () => {
         title="Detalle de Plantilla"
         size="lg"
       >
-        {/* ...existing code... */}
+        {previewModal.template && (
+          <div className="space-y-4">
+            <div>
+              <span className="text-gray-500 text-sm">Tipo:</span>
+              <p className="font-medium">{previewModal.template.type}</p>
+            </div>
+            <div>
+              <span className="text-gray-500 text-sm">Contenido:</span>
+              <p className="whitespace-pre-wrap">{previewModal.template.content}</p>
+            </div>
+            <div>
+              <span className="text-gray-500 text-sm">Autor:</span>
+              <p>{previewModal.template.author}</p>
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={closePreviewModal}
+                className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-100 mr-2"
+              >
+                Cerrar
+              </button>
+              <Link
+                to="/templates/send"
+                state={{ template: previewModal.template }}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                onClick={closePreviewModal}
+              >
+                Enviar
+              </Link>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

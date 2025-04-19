@@ -6,6 +6,7 @@ import Layout from './components/layout/Layout';
 // Templates
 import TemplateList from './components/templates/TemplateList';
 import TemplateForm from './components/templates/TemplateForm';
+import MessageForm from './components/templates/MessageForm';
 
 // Companies
 import CompanyList from './components/companies/CompanyList';
@@ -31,6 +32,8 @@ function App() {
           <Route path="/templates" element={<TemplateList />} />
           <Route path="/templates/new" element={<TemplateForm isEditing={false} />} />
           <Route path="/templates/edit/:id" element={<TemplateForm isEditing={true} />} />
+          <Route path="/templates/send" element={<MessageForm />} />
+          <Route path="/templates/send/:contactId" element={<MessageForm />} />
           
           {/* Companies routes */}
           <Route path="/companies" element={<CompanyList />} />
