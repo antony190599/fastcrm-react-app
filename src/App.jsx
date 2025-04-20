@@ -11,6 +11,7 @@ import MessageForm from './components/templates/MessageForm';
 // Companies
 import CompanyList from './components/companies/CompanyList';
 import CompanyForm from './components/companies/CompanyForm';
+import CompanyDetail from './components/companies/CompanyDetail';
 
 // Contacts
 import ContactList from './components/contacts/ContactList';
@@ -39,6 +40,7 @@ function App() {
           <Route path="/companies" element={<CompanyList />} />
           <Route path="/companies/new" element={<CompanyForm isEditing={false} />} />
           <Route path="/companies/edit/:id" element={<CompanyForm isEditing={true} />} />
+          <Route path="/companies/:id" element={<CompanyDetail />} />
           
           {/* Contacts routes */}
           <Route path="/contacts" element={<ContactList />} />

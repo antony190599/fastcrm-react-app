@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import contactService from '../../services/contactService';
 import companyService from '../../services/companyService';
 import * as yup from 'yup';
@@ -17,6 +17,8 @@ const validationSchema = yup.object().shape({
 const ContactForm = ({ isEditing = false }) => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const preselectedCompany = location.state?.preselectedCompany;
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -24,7 +26,7 @@ const ContactForm = ({ isEditing = false }) => {
     email: '',
     phone: '',
     title: '',
-    companyId: ''
+    companyId: preselectedCompany?.id || ''
   });
   
   const [companies, setCompanies] = useState([]);
@@ -263,6 +265,7 @@ const ContactForm = ({ isEditing = false }) => {
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="companyId">
                 Empresa
+                {preselectedCompany && <span className="text-blue-600 text-xs ml-2">(Preseleccionada)</span>}
               </label>
               <select
                 id="companyId"

@@ -146,7 +146,11 @@ const CompanyList = () => {
                     {Array.isArray(companies) && companies.map((company) => (
                       <tr key={company.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{company.name}</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            <Link to={`/companies/${company.id}`} className="text-blue-600 hover:underline">
+                              {company.name}
+                            </Link>
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500">{company.ruc || '-'}</div>
