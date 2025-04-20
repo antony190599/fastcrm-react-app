@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import templateService from '../../services/templateService';
+import AppHeader from '../common/AppHeader';
 import * as yup from 'yup';
 
 // Define validation schema
@@ -147,11 +148,14 @@ const TemplateForm = ({ isEditing = false }) => {
 
   return (
     <div className="mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">
-          {isEditing ? 'Editar Plantilla' : 'Nueva Plantilla'}
-        </h1>
-      </div>
+      <AppHeader 
+        title={isEditing ? 'Editar Plantilla' : 'Nueva Plantilla'}
+        breadcrumbs={[
+          { name: 'Inicio', href: '/' },
+          { name: 'Plantillas', href: '/templates' },
+          { name: isEditing ? 'Editar Plantilla' : 'Nueva Plantilla' }
+        ]}
+      />
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">

@@ -5,7 +5,7 @@ const Navbar = () => {
   return (
     <aside className="w-[180px] min-h-screen bg-gray-50 border-r border-gray-200 fixed left-0 top-0 bottom-0">
       <div className="p-4 border-b border-gray-200">
-        <Link to="/" className="text-xl font-semibold text-gray-800">App Name</Link>
+        <Link to="/" className="text-xl font-semibold text-gray-800">FastCRM</Link>
       </div>
       
       <nav className="py-6 flex flex-col">

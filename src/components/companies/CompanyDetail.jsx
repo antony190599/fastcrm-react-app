@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import companyService from '../../services/companyService';
 import DeleteConfirmation from '../common/DeleteConfirmation';
+import AppHeader from '../common/AppHeader';
 
 const CompanyDetail = () => {
   const { id } = useParams();
@@ -100,34 +101,31 @@ const CompanyDetail = () => {
 
   return (
     <div className="mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Detalle de la Empresa</h1>
-        <div className="flex space-x-2">
-          <Link 
-            to={`/contacts/new`}
-            state={{ preselectedCompany: { id: company.id, name: company.name } }}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded mr-2 flex items-center"
-            title="Nuevo Contacto"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Nuevo Contacto
-          </Link>
-          <Link 
-            to={`/companies/edit/${id}`}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded mr-2"
-          >
-            Editar
-          </Link>
-          <button 
-            onClick={openDeleteConfirmation}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-          >
-            Eliminar
-          </button>
-        </div>
-      </div>
+      <AppHeader 
+        title="Detalle de la Empresa"
+        breadcrumbs={[
+          { name: 'Inicio', href: '/' },
+          { name: 'Empresas', href: '/companies' },
+          { name: company ? company.name : 'Detalle' }
+        ]}
+        actionLinks={[
+          { 
+            label: 'Nuevo Contacto', 
+            href: '/contacts/new', 
+            className: 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded'
+          },
+          { 
+            label: 'Editar', 
+            href: `/companies/edit/${id}` 
+          },
+          { 
+            label: 'Eliminar', 
+            href: '#', 
+            onClick: openDeleteConfirmation,
+            className: 'bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded'
+          }
+        ]}
+      />
 
       <div className="bg-white shadow rounded-lg p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import * as yup from 'yup';
 import messageService from '../../services/messageService';
 import templateService from '../../services/templateService';
-import PageHeader from '../common/PageHeader';
+import AppHeader from '../common/AppHeader';
 
 // Define validation schema
 const validationSchema = yup.object().shape({
@@ -310,9 +310,13 @@ const MessageForm = () => {
   
   return (
     <div className="mx-auto px-4 py-8">
-      <PageHeader 
+      <AppHeader 
         title="Enviar Plantilla"
-        backLink={{ to: '/templates', text: 'Volver a Plantillas' }}
+        breadcrumbs={[
+          { name: 'Inicio', href: '/' },
+          { name: 'Plantillas', href: '/templates' },
+          { name: 'Enviar Mensaje' }
+        ]}
       />
 
       {error && (

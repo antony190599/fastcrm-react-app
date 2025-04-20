@@ -1,10 +1,16 @@
 import React from 'react';
-import PageHeader from '../common/PageHeader';
+import AppHeader from '../common/AppHeader';
 
 const Dashboard = () => {
   return (
-    <div>
-      <PageHeader title="Dashboard" />
+    <div className='mx-auto px-4 py-8'>
+      <AppHeader 
+        title="Dashboard"
+        breadcrumbs={[
+          { name: 'Inicio', href: '/' },
+          { name: 'Dashboard' }
+        ]}
+      />
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-white p-6 rounded-lg shadow-sm">

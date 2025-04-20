@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import contactService from '../../services/contactService';
 import companyService from '../../services/companyService';
+import AppHeader from '../common/AppHeader';
 import * as yup from 'yup';
 
 // Define validation schema
@@ -142,11 +143,14 @@ const ContactForm = ({ isEditing = false }) => {
 
   return (
     <div className="mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">
-          {isEditing ? 'Editar Contacto' : 'Nuevo Contacto'}
-        </h1>
-      </div>
+      <AppHeader 
+        title={isEditing ? 'Editar Contacto' : 'Nuevo Contacto'}
+        breadcrumbs={[
+          { name: 'Inicio', href: '/' },
+          { name: 'Contactos', href: '/contacts' },
+          { name: isEditing ? 'Editar Contacto' : 'Nuevo Contacto' }
+        ]}
+      />
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
