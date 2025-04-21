@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import contactService from '../../services/contactService';
 import DeleteConfirmation from '../common/DeleteConfirmation';
 import Pagination from '../common/Pagination';
 import AppHeader from '../common/AppHeader';
-import { EyeIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, PencilSquareIcon, TrashIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 
 const ContactList = () => {
+  const navigate = useNavigate();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,6 +22,9 @@ const ContactList = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
+  // Add state for selected contacts
+  const [selectedContacts, setSelectedContacts] = useState([]);
 
   useEffect(() => {
     fetchContacts();
@@ -100,6 +104,39 @@ const ContactList = () => {
     setCurrentPage(1); // Reset to first page when changing items per page
   };
 
+  const handleSelectContact = (contactId) => {
+    setSelectedContacts(prev => {
+      if (prev.includes(contactId)) {
+        return prev.filter(id => id !== contactId);
+      } else {
+        return [...prev, contactId];
+      }
+    });
+  };
+  
+  const handleSelectAllContacts = (e) => {
+    if (e.target.checked) {
+      const allIds = contacts.map(contact => contact.id);
+      setSelectedContacts(allIds);
+    } else {
+      setSelectedContacts([]);
+    }
+  };
+  
+  const handleSendBulkMessage = () => {
+    if (selectedContacts.length > 0) {
+      // Find the contact objects for the selected IDs
+      const selectedContactObjects = contacts.filter(contact => 
+        selectedContacts.includes(contact.id)
+      );
+      
+      // Navigate to the bulk message form with the selected contacts
+      navigate('/templates/send-bulk', { 
+        state: { contacts: selectedContactObjects } 
+      });
+    }
+  };
+
   return (
     <div className="mx-auto px-4 py-8">
       <AppHeader 
@@ -145,10 +182,36 @@ const ContactList = () => {
             </div>
           ) : (
             <>
+              {/* Add bulk message action when contacts are selected */}
+              {selectedContacts.length > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex justify-between items-center">
+                  <span className="text-blue-700">
+                    {selectedContacts.length} contacto(s) seleccionado(s)
+                  </span>
+                  <button 
+                    onClick={handleSendBulkMessage}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center"
+                  >
+                    <PaperAirplaneIcon className="h-4 w-4 mr-2" />
+                    Enviar Mensaje
+                  </button>
+                </div>
+              )}
+            
               <div className="bg-white shadow rounded-lg overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
+                      <th className="px-6 py-3 text-left">
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            onChange={handleSelectAllContacts}
+                            checked={selectedContacts.length > 0 && selectedContacts.length === contacts.length}
+                          />
+                        </div>
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Nombre
                       </th>
@@ -172,6 +235,14 @@ const ContactList = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {Array.isArray(contacts) && contacts.map((contact) => (
                       <tr key={contact.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <input
+                            type="checkbox"
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            checked={selectedContacts.includes(contact.id)}
+                            onChange={() => handleSelectContact(contact.id)}
+                          />
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
                             {`${contact.firstName} ${contact.lastName}`}

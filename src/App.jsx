@@ -7,6 +7,7 @@ import Layout from './components/layout/Layout';
 import TemplateList from './components/templates/TemplateList';
 import TemplateForm from './components/templates/TemplateForm';
 import MessageForm from './components/templates/MessageForm';
+import BulkMessageForm from './components/templates/BulkMessageForm';
 
 // Companies
 import CompanyList from './components/companies/CompanyList';
@@ -35,6 +36,7 @@ function App() {
           <Route path="/templates/edit/:id" element={<TemplateForm isEditing={true} />} />
           <Route path="/templates/send" element={<MessageForm />} />
           <Route path="/templates/send/:contactId" element={<MessageForm />} />
+          <Route path="/templates/send-bulk" element={<BulkMessageForm />} />
           
           {/* Companies routes */}
           <Route path="/companies" element={<CompanyList />} />

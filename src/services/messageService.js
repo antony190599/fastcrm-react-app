@@ -19,6 +19,15 @@ const messageService = {
     } catch (error) {
       throw error.response?.data || { message: 'Error al buscar contactos' };
     }
+  },
+  
+  sendBulkMessage: async (messageData) => {
+    try {
+      const response = await axios.post(`${API_URL}/api/messages/bulk`, messageData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Error al enviar mensajes masivos' };
+    }
   }
 };
 
