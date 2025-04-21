@@ -206,20 +206,39 @@ const BulkMessageForm = () => {
         // Construct the wa.me URL
         const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(formData.content)}`;
         
-        // Open the link in a new tab
-        window.open(waUrl, '_blank');
-        
-        // Mark as sent
-        setContactStatus(prev => ({
-          ...prev,
-          [currentContact.id]: 'sent'
-        }));
-        
-        // Auto discard if setting is enabled
-        if (autoDiscard) {
-          setTimeout(() => {
-            discardContact(currentContact.id);
-          }, 500);
+        try {
+          // Register the message in the backend
+          const payload = {
+            method: 'whatsapp',
+            content: formData.content,
+            // No subject needed for WhatsApp
+          };
+          
+          // Register the message even though it opens in a new window
+          await messageService.sendMessage(currentContact.id, payload);
+          
+          // Open the link in a new tab
+          window.open(waUrl, '_blank');
+          
+          // Mark as sent
+          setContactStatus(prev => ({
+            ...prev,
+            [currentContact.id]: 'sent'
+          }));
+          
+          // Auto discard if setting is enabled
+          if (autoDiscard) {
+            setTimeout(() => {
+              discardContact(currentContact.id);
+            }, 500);
+          }
+        } catch (err) {
+          // Handle error during WhatsApp message registration
+          setContactStatus(prev => ({
+            ...prev,
+            [currentContact.id]: 'error'
+          }));
+          console.error('Error registrando mensaje de WhatsApp:', err);
         }
       } else {
         // Send email via API
