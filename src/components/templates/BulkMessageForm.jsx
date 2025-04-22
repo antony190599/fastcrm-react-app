@@ -39,12 +39,18 @@ const BulkMessageForm = () => {
   
   // State for templates and form state
   const [templates, setTemplates] = useState([]);
+  const [filteredTemplates, setFilteredTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [validationErrors, setValidationErrors] = useState({});
   const [processComplete, setProcessComplete] = useState(false);
+  
+  // New state for template filtering
+  const [templateTypes, setTemplateTypes] = useState([]);
+  const [selectedTemplateType, setSelectedTemplateType] = useState('');
+  const [templateSearchQuery, setTemplateSearchQuery] = useState('');
   
   // Initialize contact status when contacts change
   useEffect(() => {
@@ -63,14 +69,67 @@ const BulkMessageForm = () => {
     fetchTemplates();
   }, []);
 
+  // Apply filters when type or search query change
+  useEffect(() => {
+    filterTemplates();
+  }, [selectedTemplateType, templateSearchQuery, templates]);
+
   const fetchTemplates = async () => {
     try {
       const response = await templateService.getTemplates({ limit: 100 });
       if (response.success && response.data) {
-        setTemplates(response.data);
+        const templatesData = response.data;
+        setTemplates(templatesData);
+        
+        // Extract unique template types for the dropdown
+        const types = [...new Set(templatesData.map(template => template.type))];
+        setTemplateTypes(types);
+        
+        // Initialize filtered templates
+        setFilteredTemplates(templatesData);
       }
     } catch (err) {
       console.error('Error fetching templates:', err);
+    }
+  };
+  
+  const filterTemplates = () => {
+    let filtered = [...templates];
+    
+    // Filter by type if selected
+    if (selectedTemplateType) {
+      filtered = filtered.filter(template => template.type === selectedTemplateType);
+    }
+    
+    // Filter by search query if provided
+    if (templateSearchQuery.trim() !== '' && templateSearchQuery.length >= 2) {
+      const query = templateSearchQuery.toLowerCase();
+      filtered = filtered.filter(template => 
+        template.content.toLowerCase().includes(query) || 
+        template.type.toLowerCase().includes(query)
+      );
+    }
+    
+    setFilteredTemplates(filtered);
+  };
+  
+  const handleTemplateTypeChange = (e) => {
+    setSelectedTemplateType(e.target.value);
+  };
+  
+  const handleTemplateSearchChange = (e) => {
+    setTemplateSearchQuery(e.target.value);
+  };
+  
+  const handleApplyTemplate = (templateId) => {
+    setSelectedTemplateId(templateId);
+    const template = templates.find(t => t.id === templateId);
+    if (template) {
+      setFormData(prev => ({
+        ...prev,
+        content: template.content,
+        subject: template.type === 'bienvenida' ? 'Bienvenido' : 'Seguimiento'
+      }));
     }
   };
   
@@ -107,21 +166,6 @@ const BulkMessageForm = () => {
       setValidationErrors(prev => ({ ...prev, subject: undefined }));
     } else {
       await validateField('subject', formData.subject);
-    }
-  };
-  
-  const handleApplyTemplate = (templateId) => {
-    setSelectedTemplateId(templateId);
-    
-    if (!templateId) return;
-    
-    const selectedTemplate = templates.find(t => t.id === templateId);
-    if (selectedTemplate) {
-      setFormData(prev => ({
-        ...prev,
-        content: selectedTemplate.content,
-        subject: selectedTemplate.type === 'bienvenida' ? 'Bienvenido' : 'Seguimiento'
-      }));
     }
   };
   
@@ -400,24 +444,67 @@ const BulkMessageForm = () => {
           </div>
         </div>
         
-        {/* Template Selection */}
+        {/* Template Selection - Updated UI */}
         {templates.length > 0 && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Aplicar Plantilla
-            </label>
-            <select
-              onChange={(e) => handleApplyTemplate(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-              value={selectedTemplateId}
-            >
-              <option value="" disabled>Seleccione una plantilla...</option>
-              {templates.map(template => (
-                <option key={template.id} value={template.id}>
-                  {template.type}: {template.content.substring(0, 30)}...
-                </option>
-              ))}
-            </select>
+          <div className="mb-6">
+            <h3 className="text-md font-medium mb-3">Aplicar Plantilla</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {/* Template Type Selector */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tipo
+                </label>
+                <select
+                  onChange={handleTemplateTypeChange}
+                  value={selectedTemplateType}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                >
+                  <option value="">Todos</option>
+                  {templateTypes.map((type, index) => (
+                    <option key={index} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Template Search */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Búsqueda (mín. 2 caracteres)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Buscar por contenido..."
+                  value={templateSearchQuery}
+                  onChange={handleTemplateSearchChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                />
+              </div>
+            </div>
+            
+            {/* Template Selection */}
+            <div className="mt-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Seleccione una plantilla...
+              </label>
+              <select
+                onChange={(e) => handleApplyTemplate(e.target.value)}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                value={selectedTemplateId}
+              >
+                <option value="">Seleccione una plantilla...</option>
+                {filteredTemplates.map(template => (
+                  <option key={template.id} value={template.id}>
+                    {template.type}: {template.content.substring(0, 30)}...
+                  </option>
+                ))}
+              </select>
+              {filteredTemplates.length === 0 && templateSearchQuery && (
+                <p className="mt-1 text-xs text-amber-600">No se encontraron plantillas que coincidan con tu búsqueda.</p>
+              )}
+            </div>
           </div>
         )}
         
