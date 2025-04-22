@@ -20,6 +20,11 @@ const contactService = {
         params.append('limit', options.limit);
       }
       
+      // Add search parameter
+      if (options.search) {
+        params.append('search', options.search);
+      }
+      
       const response = await axios.get(`${API_URL}/api/contacts`, { params });
       return response.data;
     } catch (error) {
