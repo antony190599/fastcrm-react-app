@@ -5,15 +5,15 @@ const Pagination = ({ currentPage, totalPages, onPageChange, itemsPerPage, onIte
   const pageNumbers = [];
   
   // Always show first page, last page, current page, and 1-2 pages before/after current
-  const startPage = Math.max(1, currentPage - 2);
-  const endPage = Math.min(totalPages, currentPage + 2);
+  const startPage = Math.max(1, currentPage - 1);
+  const endPage = Math.min(totalPages, currentPage + 1);
   
   for (let i = startPage; i <= endPage; i++) {
     pageNumbers.push(i);
   }
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-lg">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6 mt-4 rounded-lg gap-3">
       <div className="flex flex-1 justify-between sm:hidden">
         <button
           onClick={() => onPageChange(currentPage - 1)}
@@ -24,6 +24,9 @@ const Pagination = ({ currentPage, totalPages, onPageChange, itemsPerPage, onIte
         >
           Anterior
         </button>
+        <span className="mx-2 self-center">
+          Página {currentPage} de {totalPages}
+        </span>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}

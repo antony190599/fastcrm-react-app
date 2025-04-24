@@ -1,9 +1,23 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ isOpen, onClose }) => {
+  const handleLinkClick = () => {
+    if (window.innerWidth < 768) {
+      onClose();
+    }
+  };
+
   return (
-    <aside className="w-[180px] min-h-screen bg-gray-50 border-r border-gray-200 fixed left-0 top-0 bottom-0">
+    <aside className={`
+      ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+      md:translate-x-0
+      transition-transform duration-300 ease-in-out
+      w-[240px] md:w-[180px] 
+      min-h-screen bg-gray-50 border-r border-gray-200 
+      fixed left-0 top-0 bottom-0 
+      z-20 shadow-lg md:shadow-none
+    `}>
       <div className="p-4 border-b border-gray-200">
         <Link to="/" className="text-xl font-semibold text-gray-800">FastCRM</Link>
       </div>
@@ -11,8 +25,9 @@ const Navbar = () => {
       <nav className="py-6 flex flex-col">
         <NavLink 
           to="/dashboard" 
+          onClick={handleLinkClick}
           className={({ isActive }) => 
-            `flex items-center py-2 px-4 ${
+            `flex items-center py-3 px-4 ${
               isActive 
                 ? "bg-blue-50 text-blue-700 border-l-4 border-blue-700" 
                 : "text-gray-700 hover:bg-gray-100"
@@ -30,8 +45,9 @@ const Navbar = () => {
         
         <NavLink 
           to="/templates" 
+          onClick={handleLinkClick}
           className={({ isActive }) => 
-            `flex items-center py-2 px-4 ${
+            `flex items-center py-3 px-4 ${
               isActive 
                 ? "bg-blue-50 text-blue-700 border-l-4 border-blue-700" 
                 : "text-gray-700 hover:bg-gray-100"
@@ -46,8 +62,9 @@ const Navbar = () => {
         
         <NavLink 
           to="/contacts" 
+          onClick={handleLinkClick}
           className={({ isActive }) => 
-            `flex items-center py-2 px-4 ${
+            `flex items-center py-3 px-4 ${
               isActive 
                 ? "bg-blue-50 text-blue-700 border-l-4 border-blue-700" 
                 : "text-gray-700 hover:bg-gray-100"
@@ -62,8 +79,9 @@ const Navbar = () => {
         
         <NavLink 
           to="/companies" 
+          onClick={handleLinkClick}
           className={({ isActive }) => 
-            `flex items-center py-2 px-4 ${
+            `flex items-center py-3 px-4 ${
               isActive 
                 ? "bg-blue-50 text-blue-700 border-l-4 border-blue-700" 
                 : "text-gray-700 hover:bg-gray-100"

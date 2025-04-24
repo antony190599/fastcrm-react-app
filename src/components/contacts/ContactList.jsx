@@ -343,14 +343,14 @@ const ContactList = () => {
         ]}
       />
 
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div className="flex items-center">
-            <label className="block text-sm font-medium text-gray-700 mr-4">Ordenar por:</label>
+      <div className="bg-white shadow rounded-lg p-4 md:p-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <label className="block text-sm font-medium text-gray-700">Ordenar por:</label>
             <select
               value={orderBy}
               onChange={handleOrderChange}
-              className="border border-gray-300 rounded px-3 py-2"
+              className="mt-1 sm:mt-0 border border-gray-300 rounded px-3 py-2 w-full sm:w-auto"
             >
               <option value="">Nombre y Apellido</option>
               <option value="company">Empresa</option>
@@ -371,183 +371,161 @@ const ContactList = () => {
             />
           </div>
         </div>
-      </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      ) : (
-        <>
-          {contacts.length === 0 ? (
-            <div className="bg-gray-100 p-6 rounded-lg text-center">
-              {searchQuery ? 'No se encontraron contactos que coincidan con tu búsqueda.' : 'No hay contactos registrados.'}
+        {/* Acciones para mensajes en bulk - hacer responsive */}
+        {selectedContacts.length > 0 && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 md:p-4 mb-4 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+            <div>
+              <span className="text-blue-700">
+                {selectedContacts.length} contacto(s) seleccionado(s)
+              </span>
+              <button 
+                onClick={handleClearAllSelections}
+                className="ml-3 text-xs text-red-600 hover:text-red-800 underline"
+              >
+                Deseleccionar todos
+              </button>
             </div>
-          ) : (
-            <>
-              {/* Add bulk message action when contacts are selected */}
-              {selectedContacts.length > 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 flex justify-between items-center">
-                  <div>
-                    <span className="text-blue-700">
-                      {selectedContacts.length} contacto(s) seleccionado(s)
-                    </span>
-                    <button 
-                      onClick={handleClearAllSelections}
-                      className="ml-3 text-xs text-red-600 hover:text-red-800 underline"
-                    >
-                      Limpiar selección
-                    </button>
-                  </div>
-                  <button
-                    onClick={handleSendBulkMessage}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center"
-                  >
-                    <PaperAirplaneIcon className="h-4 w-4 mr-2" />
-                    Enviar Mensaje
-                  </button>
-                </div>
-              )}
+            <button
+              onClick={handleSendBulkMessage}
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 md:px-4 md:py-2 rounded flex items-center justify-center"
+            >
+              <PaperAirplaneIcon className="h-4 w-4 mr-1" />
+              Enviar mensaje masivo
+            </button>
+          </div>
+        )}
 
-              {isSearching && searchQuery && contacts.length > 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-blue-700">
-                    Se encontraron {contacts.length} contactos para "{searchQuery}"
-                  </p>
-                </div>
-              )}
-
-              <div className="bg-white shadow rounded-lg overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left">
-                        <div className="flex items-center">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            onChange={handleSelectAllContacts}
-                            checked={allCurrentSelected && contacts.length > 0}
-                          />
-                        </div>
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Nombre
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Teléfono
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cargo
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Empresa
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Acciones
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(contacts) && contacts.map((contact) => (
-                      <tr key={contact.id} className={selectedContacts.includes(contact.id) ? "bg-blue-50" : ""}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            checked={selectedContacts.includes(contact.id)}
-                            onChange={() => handleSelectContact(contact.id)}
-                          />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {`${contact.firstName} ${contact.lastName}`}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <a href={`mailto:${contact.email}`} className="text-sm text-blue-600 hover:underline">
-                            {contact.email}
-                          </a>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {contact.phone || '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {contact.title || '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {contact.company ? (
-                            <Link 
-                              to={`/companies/${contact.companyId}`}
-                              className="text-sm text-blue-500 hover:underline"
-                            >
-                              {contact.company.name}
-                            </Link>
-                          ) : (
-                            <span className="text-sm text-gray-500">-</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end">
-                            <Link 
-                              to={`/contacts/${contact.id}`}
-                              className="text-gray-600 hover:text-gray-900 mr-4"
-                              title="Ver"
-                            >
-                              <EyeIcon className="h-5 w-5" />
-                            </Link>
-                            <Link 
-                              to={`/contacts/edit/${contact.id}`}
-                              className="text-blue-600 hover:text-blue-900 mr-4"
-                              title="Editar"
-                            >
-                              <PencilSquareIcon className="h-5 w-5" />
-                            </Link>
-                            <button
-                              onClick={() => openDeleteConfirmation(contact.id)}
-                              className="text-red-600 hover:text-red-900"
-                              title="Eliminar"
-                            >
-                              <TrashIcon className="h-5 w-5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        {/* Tabla de contactos con scroll horizontal */}
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <input
+                      type="checkbox"
+                      checked={
+                        contacts.length > 0 &&
+                        contacts.every(contact => selectedContacts.includes(contact.id))
+                      }
+                      onChange={handleSelectAllContacts}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </th>
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Nombre
+                  </th>
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                    Email
+                  </th>
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                    Teléfono
+                  </th>
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                    Empresa
+                  </th>
+                  <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
+                    Cargo
+                  </th>
+                  <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {Array.isArray(contacts) && contacts.map((contact) => (
+                  <tr key={contact.id} className={selectedContacts.includes(contact.id) ? "bg-blue-50" : ""}>
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        checked={selectedContacts.includes(contact.id)}
+                        onChange={() => handleSelectContact(contact.id)}
+                      />
+                    </td>
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {`${contact.firstName} ${contact.lastName}`}
+                      </div>
+                      {/* Mostrar email y teléfono en móvil */}
+                      <div className="sm:hidden text-xs text-gray-500 mt-1">
+                        {contact.email && <div>{contact.email}</div>}
+                        {contact.phone && <div>{contact.phone}</div>}
+                        {contact.company && <div>{contact.company.name}</div>}
+                      </div>
+                    </td>
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                      <div className="text-sm text-gray-500">{contact.email || '-'}</div>
+                    </td>
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                      <div className="text-sm text-gray-500">{contact.phone || '-'}</div>
+                    </td>
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                      {contact.company ? (
+                        <Link 
+                          to={`/companies/${contact.companyId}`}
+                          className="text-sm text-blue-600 hover:underline"
+                        >
+                          {contact.company.name}
+                        </Link>
+                      ) : (
+                        <span className="text-sm text-gray-500">-</span>
+                      )}
+                    </td>
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden xl:table-cell">
+                      <div className="text-sm text-gray-500">{contact.title || '-'}</div>
+                    </td>
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end">
+                        <Link 
+                          to={`/contacts/${contact.id}`}
+                          className="text-gray-600 hover:text-gray-900 mr-2 md:mr-4"
+                          title="Ver"
+                        >
+                          <EyeIcon className="h-5 w-5" />
+                        </Link>
+                        <Link 
+                          to={`/contacts/edit/${contact.id}`}
+                          className="text-blue-600 hover:text-blue-900 mr-2 md:mr-4"
+                          title="Editar"
+                        >
+                          <PencilSquareIcon className="h-5 w-5" />
+                        </Link>
+                        <button
+                          onClick={() => openDeleteConfirmation(contact.id)}
+                          className="text-red-600 hover:text-red-900"
+                          title="Eliminar"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        {/* Mantener la paginación como estaba */}
+        {!isSearching && totalPages > 0 && (
+          <div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              itemsPerPage={itemsPerPage}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
+            {selectedContacts.length > 0 && (
+              <div className="mt-2 text-sm text-gray-600">
+                <p>Tienes contactos seleccionados en varias páginas. Puedes cambiar de página sin perder tu selección.</p>
               </div>
-              
-              {/* Pagination - Solo mostrar si no estamos en búsqueda */}
-              {!isSearching && totalPages > 0 && (
-                <div>
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange}
-                    itemsPerPage={itemsPerPage}
-                    onItemsPerPageChange={handleItemsPerPageChange}
-                  />
-                  {selectedContacts.length > 0 && (
-                    <div className="mt-2 text-sm text-gray-600">
-                      <p>Tienes contactos seleccionados en varias páginas. Puedes cambiar de página sin perder tu selección.</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </>
-      )}
+            )}
+          </div>
+        )}
+      </div>
 
       <DeleteConfirmation
         isOpen={deleteConfirmation.isOpen}

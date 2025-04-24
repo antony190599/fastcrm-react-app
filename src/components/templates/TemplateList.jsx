@@ -144,7 +144,7 @@ const TemplateList = () => {
         ]}
       />
 
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
+      <div className="bg-white shadow rounded-lg p-4 md:p-6 mb-6">
         <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
@@ -163,28 +163,27 @@ const TemplateList = () => {
             </select>
           </div>
           
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Búsqueda (min. 2 caracteres)
             </label>
-            <input
-              type="text"
-              name="q"
-              value={filters.q}
-              onChange={handleFilterChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-              placeholder="Buscar por contenido..."
-              minLength={2}
-            />
-          </div>
-          
-          <div className="flex items-end">
-            <button 
-              type="submit" 
-              className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded"
-            >
-              Buscar
-            </button>
+            <div className="flex">
+              <input
+                type="text"
+                name="q"
+                value={filters.q}
+                onChange={handleFilterChange}
+                className="flex-1 border border-gray-300 rounded-l px-3 py-2"
+                placeholder="Buscar por contenido..."
+                minLength={2}
+              />
+              <button 
+                type="submit" 
+                className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-r"
+              >
+                Buscar
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -207,97 +206,115 @@ const TemplateList = () => {
             </div>
           ) : (
             <>
-              <div className="bg-white shadow rounded-lg overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tipo
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Contenido
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Autor
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Etiquetas
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Fecha de Creación
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Acciones
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(templates) && templates.map((template) => (
-                      <tr key={template.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            template.type === 'seguimiento' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {template.type}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 max-w-md truncate">
-                            {template.content}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {template.author}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex flex-wrap gap-1">
-                            {template.labels && template.labels.map((label, i) => (
-                              <span key={i} className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
-                                {label}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(template.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end">
-                            <button
-                              onClick={() => openPreviewModal(template)}
-                              className="text-gray-600 hover:text-gray-900 mr-4"
-                              title="Ver"
-                            >
-                              <EyeIcon className="h-5 w-5" />
-                            </button>
-                            <Link 
-                              to={`/templates/edit/${template.id}`}
-                              className="text-blue-600 hover:text-blue-900 mr-4"
-                              title="Editar"
-                            >
-                              <PencilSquareIcon className="h-5 w-5" />
-                            </Link>
-                            <Link
-                              to={`/templates/send`}
-                              state={{ template: template }}
-                              className="text-green-600 hover:text-green-900 mr-4"
-                              title="Enviar"
-                            >
-                              <PaperAirplaneIcon className="h-5 w-5" />
-                            </Link>
-                            <button
-                              onClick={() => openDeleteConfirmation(template.id)}
-                              className="text-red-600 hover:text-red-900"
-                              title="Eliminar"
-                            >
-                              <TrashIcon className="h-5 w-5" />
-                            </button>
-                          </div>
-                        </td>
+              <div className="bg-white shadow rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tipo
+                        </th>
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Contenido
+                        </th>
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                          Autor
+                        </th>
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                          Etiquetas
+                        </th>
+                        <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
+                          Fecha de Creación
+                        </th>
+                        <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Acciones
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {Array.isArray(templates) && templates.map((template) => (
+                        <tr key={template.id}>
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              template.type === 'seguimiento' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {template.type}
+                            </span>
+                          </td>
+                          <td className="px-3 md:px-6 py-4">
+                            <div className="text-sm text-gray-900 max-w-[150px] sm:max-w-[200px] md:max-w-md truncate">
+                              {template.content}
+                            </div>
+                            {/* Información móvil adicional */}
+                            <div className="md:hidden text-xs text-gray-500 mt-1">
+                              <div>Autor: {template.author}</div>
+                              {template.labels && template.labels.length > 0 && (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {template.labels.slice(0, 2).map((label, i) => (
+                                    <span key={i} className="bg-gray-100 text-gray-600 px-1 py-0.5 rounded text-xs">
+                                      {label}
+                                    </span>
+                                  ))}
+                                  {template.labels.length > 2 && (
+                                    <span className="text-xs text-gray-500">+{template.labels.length - 2}</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
+                            {template.author}
+                          </td>
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                            <div className="flex flex-wrap gap-1">
+                              {template.labels && template.labels.map((label, i) => (
+                                <span key={i} className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                                  {label}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden xl:table-cell">
+                            {new Date(template.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end">
+                              <button
+                                onClick={() => openPreviewModal(template)}
+                                className="text-gray-600 hover:text-gray-900 mr-2 md:mr-4"
+                                title="Ver"
+                              >
+                                <EyeIcon className="h-5 w-5" />
+                              </button>
+                              <Link 
+                                to={`/templates/edit/${template.id}`}
+                                className="text-blue-600 hover:text-blue-900 mr-2 md:mr-4"
+                                title="Editar"
+                              >
+                                <PencilSquareIcon className="h-5 w-5" />
+                              </Link>
+                              <Link
+                                to={`/templates/send`}
+                                state={{ template: template }}
+                                className="text-green-600 hover:text-green-900 mr-2 md:mr-4"
+                                title="Enviar"
+                              >
+                                <PaperAirplaneIcon className="h-5 w-5" />
+                              </Link>
+                              <button
+                                onClick={() => openDeleteConfirmation(template.id)}
+                                className="text-red-600 hover:text-red-900"
+                                title="Eliminar"
+                              >
+                                <TrashIcon className="h-5 w-5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
               
               {/* Pagination */}

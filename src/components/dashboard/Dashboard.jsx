@@ -74,55 +74,55 @@ const Dashboard = () => {
         </div>
       )}
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-medium text-gray-800 mb-2">Contactos</h3>
           {loading ? (
             <div className="animate-pulse h-8 bg-gray-200 rounded"></div>
           ) : (
-            <p className="text-3xl font-bold text-blue-600">
+            <p className="text-2xl md:text-3xl font-bold text-blue-600">
               {metrics?.contacts?.total || 0}
             </p>
           )}
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-medium text-gray-800 mb-2">Empresas</h3>
           {loading ? (
             <div className="animate-pulse h-8 bg-gray-200 rounded"></div>
           ) : (
-            <p className="text-3xl font-bold text-green-600">
+            <p className="text-2xl md:text-3xl font-bold text-green-600">
               {metrics?.companies?.total || 0}
             </p>
           )}
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-medium text-gray-800 mb-2">Plantillas</h3>
           {loading ? (
             <div className="animate-pulse h-8 bg-gray-200 rounded"></div>
           ) : (
-            <p className="text-3xl font-bold text-yellow-600">
+            <p className="text-2xl md:text-3xl font-bold text-yellow-600">
               {metrics?.templates?.total || 0}
             </p>
           )}
         </div>
         
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-medium text-gray-800 mb-2">Mensajes Enviados</h3>
           {loading ? (
             <div className="animate-pulse h-8 bg-gray-200 rounded"></div>
           ) : (
-            <p className="text-3xl font-bold text-purple-600">
+            <p className="text-2xl md:text-3xl font-bold text-purple-600">
               {metrics?.messages?.total || 0}
             </p>
           )}
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Templates by Type Chart */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
           <h3 className="text-lg font-medium text-gray-800 mb-4">Plantillas por Tipo</h3>
           {loading ? (
             <div className="animate-pulse h-64 bg-gray-200 rounded"></div>
@@ -147,9 +147,9 @@ const Dashboard = () => {
             <p className="text-gray-500 text-center py-20">No hay datos disponibles</p>
           )}
         </div>
-        
+
         {/* Messages by Method Chart */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
           <h3 className="text-lg font-medium text-gray-800 mb-4">Mensajes por Método</h3>
           {loading ? (
             <div className="animate-pulse h-64 bg-gray-200 rounded"></div>
@@ -176,7 +176,7 @@ const Dashboard = () => {
         </div>
       </div>
       
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
         <h3 className="text-lg font-medium text-gray-800 mb-4">Actividad Reciente</h3>
         <div className="space-y-4">
           {loading ? (

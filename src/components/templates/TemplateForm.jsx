@@ -169,31 +169,52 @@ const TemplateForm = ({ isEditing = false }) => {
         </div>
       )}
 
-      <div className="bg-white shadow rounded-lg p-6">
-        {loading && !isEditing ? (
+      <div className="bg-white shadow rounded-lg p-4 md:p-6">
+        {loading && isEditing ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="type">
-                Tipo *
-              </label>
-              <select
-                id="type"
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className={`w-full border ${validationErrors.type ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
-                required
-              >
-                <option value="seguimiento">Seguimiento</option>
-                <option value="bienvenida">Bienvenida</option>
-              </select>
-              {validationErrors.type && (
-                <p className="mt-1 text-xs text-red-600">{validationErrors.type}</p>
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="type">
+                  Tipo *
+                </label>
+                <select
+                  id="type"
+                  name="type"
+                  value={formData.type}
+                  onChange={handleChange}
+                  className={`w-full border ${validationErrors.type ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
+                  required
+                >
+                  <option value="seguimiento">Seguimiento</option>
+                  <option value="bienvenida">Bienvenida</option>
+                </select>
+                {validationErrors.type && (
+                  <p className="mt-1 text-xs text-red-600">{validationErrors.type}</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="author">
+                  Autor *
+                </label>
+                <input
+                  type="text"
+                  id="author"
+                  name="author"
+                  value={formData.author}
+                  onChange={handleChange}
+                  className={`w-full border ${validationErrors.author ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
+                  placeholder="Nombre del autor"
+                  required
+                />
+                {validationErrors.author && (
+                  <p className="mt-1 text-xs text-red-600">{validationErrors.author}</p>
+                )}
+              </div>
             </div>
             
             <div className="mb-4">
@@ -215,41 +236,22 @@ const TemplateForm = ({ isEditing = false }) => {
               )}
             </div>
             
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="author">
-                Autor *
-              </label>
-              <input
-                type="text"
-                id="author"
-                name="author"
-                value={formData.author}
-                onChange={handleChange}
-                className={`w-full border ${validationErrors.author ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2`}
-                placeholder="Nombre del autor"
-                required
-              />
-              {validationErrors.author && (
-                <p className="mt-1 text-xs text-red-600">{validationErrors.author}</p>
-              )}
-            </div>
-            
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Etiquetas
               </label>
-              <div className="flex">
+              <div className="flex flex-col sm:flex-row sm:items-center">
                 <input
                   type="text"
                   value={labelInput}
                   onChange={handleLabelInputChange}
-                  className="flex-grow border border-gray-300 rounded-l px-3 py-2"
+                  className="w-full sm:w-auto sm:flex-grow border border-gray-300 rounded-t sm:rounded-l sm:rounded-r-none px-3 py-2"
                   placeholder="Añadir etiqueta..."
                 />
                 <button
                   type="button"
                   onClick={addLabel}
-                  className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-r"
+                  className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-b sm:rounded-r sm:rounded-l-none border-t-0 sm:border-t sm:border-l-0 border border-gray-300 mt-px sm:mt-0"
                 >
                   Añadir
                 </button>
@@ -276,21 +278,21 @@ const TemplateForm = ({ isEditing = false }) => {
               )}
             </div>
             
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 type="button"
                 onClick={() => navigate('/templates')}
-                className="border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100"
+                className="w-full sm:w-auto border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-100"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+                className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 disabled={loading}
               >
                 {loading ? (
-                  <span className="flex items-center">
+                  <span className="flex items-center justify-center">
                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

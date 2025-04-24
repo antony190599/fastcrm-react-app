@@ -121,92 +121,99 @@ const CompanyList = () => {
             </div>
           ) : (
             <>
-              <div className="bg-white shadow rounded-lg overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Nombre
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        RUC
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Industria
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Sitio Web
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Dirección
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Acciones
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(companies) && companies.map((company) => (
-                      <tr key={company.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            <Link to={`/companies/${company.id}`} className="text-blue-600 hover:underline">
-                              {company.name}
-                            </Link>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{company.ruc || '-'}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{company.industry || '-'}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {company.website ? (
-                            <a 
-                              href={company.website} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-sm text-blue-500 hover:underline"
-                            >
-                              {company.website}
-                            </a>
-                          ) : (
-                            <span className="text-sm text-gray-500">-</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{company.address || '-'}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end">
-                            <Link 
-                              to={`/companies/${company.id}`}
-                              className="text-gray-600 hover:text-gray-900 mr-4"
-                              title="Ver"
-                            >
-                              <EyeIcon className="h-5 w-5" />
-                            </Link>
-                            <Link 
-                              to={`/companies/edit/${company.id}`}
-                              className="text-blue-600 hover:text-blue-900 mr-4"
-                              title="Editar"
-                            >
-                              <PencilSquareIcon className="h-5 w-5" />
-                            </Link>
-                            <button
-                              onClick={() => openDeleteConfirmation(company.id)}
-                              className="text-red-600 hover:text-red-900"
-                              title="Eliminar"
-                            >
-                              <TrashIcon className="h-5 w-5" />
-                            </button>
-                          </div>
-                        </td>
+              <div className="bg-white shadow rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Nombre
+                        </th>
+                        <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                          RUC
+                        </th>
+                        <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                          Industria
+                        </th>
+                        <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                          Sitio Web
+                        </th>
+                        <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
+                          Dirección
+                        </th>
+                        <th className="px-4 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Acciones
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {Array.isArray(companies) && companies.map((company) => (
+                        <tr key={company.id}>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              <Link to={`/companies/${company.id}`} className="text-blue-600 hover:underline">
+                                {company.name}
+                              </Link>
+                            </div>
+                            {/* Mobile-only company details */}
+                            <div className="sm:hidden text-xs text-gray-500 mt-1">
+                              {company.ruc && <div>RUC: {company.ruc}</div>}
+                              {company.industry && <div>Industria: {company.industry}</div>}
+                            </div>
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                            <div className="text-sm text-gray-500">{company.ruc || '-'}</div>
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                            <div className="text-sm text-gray-500">{company.industry || '-'}</div>
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                            {company.website ? (
+                              <a 
+                                href={company.website} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-500 hover:underline"
+                              >
+                                {company.website}
+                              </a>
+                            ) : (
+                              <span className="text-sm text-gray-500">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap hidden xl:table-cell">
+                            <div className="text-sm text-gray-500">{company.address || '-'}</div>
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex justify-end">
+                              <Link 
+                                to={`/companies/${company.id}`}
+                                className="text-gray-600 hover:text-gray-900 mr-4"
+                                title="Ver"
+                              >
+                                <EyeIcon className="h-5 w-5" />
+                              </Link>
+                              <Link 
+                                to={`/companies/edit/${company.id}`}
+                                className="text-blue-600 hover:text-blue-900 mr-4"
+                                title="Editar"
+                              >
+                                <PencilSquareIcon className="h-5 w-5" />
+                              </Link>
+                              <button
+                                onClick={() => openDeleteConfirmation(company.id)}
+                                className="text-red-600 hover:text-red-900"
+                                title="Eliminar"
+                              >
+                                <TrashIcon className="h-5 w-5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
               
               {/* Pagination */}

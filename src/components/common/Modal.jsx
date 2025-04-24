@@ -22,10 +22,10 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 py-6 overflow-y-auto"
       onClick={handleBackdropClick}
     >
-      <div className={`bg-white rounded-lg p-6 w-full ${sizeClasses[size]} animate-fadeIn`}>
+      <div className={`bg-white rounded-lg p-4 md:p-6 w-full ${sizeClasses[size]} animate-fadeIn max-h-[90vh] overflow-y-auto`}>
         {title && <h3 className="text-lg font-medium text-gray-900 mb-4">{title}</h3>}
         {children}
       </div>
