@@ -364,7 +364,7 @@ const ContactList = () => {
             </div>
             <input
               type="text"
-              placeholder="Buscar por nombre, email o empresa..."
+              placeholder="Buscar por nombre o apellido"
               value={searchQuery}
               onChange={handleSearchChange}
               className="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

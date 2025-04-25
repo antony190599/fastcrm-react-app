@@ -165,7 +165,7 @@ const TemplateList = () => {
           
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Búsqueda (min. 2 caracteres)
+              Búsqueda por Contenido
             </label>
             <div className="flex">
               <input
@@ -174,7 +174,7 @@ const TemplateList = () => {
                 value={filters.q}
                 onChange={handleFilterChange}
                 className="flex-1 border border-gray-300 rounded-l px-3 py-2"
-                placeholder="Buscar por contenido..."
+                placeholder="Min. 2 caracteres..."
                 minLength={2}
               />
               <button 
