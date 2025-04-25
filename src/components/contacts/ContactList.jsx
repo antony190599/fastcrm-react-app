@@ -5,6 +5,8 @@ import messageService from '../../services/messageService'; // Añadir importaci
 import DeleteConfirmation from '../common/DeleteConfirmation';
 import Pagination from '../common/Pagination';
 import AppHeader from '../common/AppHeader';
+import Tooltip from '../common/Tooltip';
+import InstructionBanner from './InstructionBanner';
 import { EyeIcon, PencilSquareIcon, TrashIcon, PaperAirplaneIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const ContactList = () => {
@@ -37,6 +39,9 @@ const ContactList = () => {
 
   // Estado para controlar si todos los contactos en la página actual están seleccionados
   const [allCurrentSelected, setAllCurrentSelected] = useState(false);
+  
+  // Estado para mostrar el banner instructivo
+  const [showInstructionBanner, setShowInstructionBanner] = useState(false);
 
   useEffect(() => {
     // Solo cargar contactos al inicio o al cambiar paginación/orden si no estamos buscando
@@ -52,6 +57,14 @@ const ContactList = () => {
       setAllCurrentSelected(allSelected);
     }
   }, [contacts, selectedContacts]);
+  
+  // Comprobar si se debe mostrar el banner instructivo
+  useEffect(() => {
+    const hasSeenBanner = localStorage.getItem('contactSelectionBannerDismissed');
+    if (!hasSeenBanner) {
+      setShowInstructionBanner(true);
+    }
+  }, []);
 
   // Efecto para manejar la búsqueda con debounce
   useEffect(() => {
@@ -329,6 +342,10 @@ const ContactList = () => {
       setIsSearching(false);
     }
   };
+  
+  const handleDismissBanner = () => {
+    setShowInstructionBanner(false);
+  };
 
   return (
     <div className="mx-auto px-4 py-8">
@@ -372,6 +389,11 @@ const ContactList = () => {
           </div>
         </div>
 
+        {/* Show Instruction Banner for contact selection */}
+        {showInstructionBanner && selectedContacts.length === 0 && (
+          <InstructionBanner onDismiss={handleDismissBanner} />
+        )}
+
         {/* Acciones para mensajes en bulk - hacer responsive */}
         {selectedContacts.length > 0 && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 md:p-4 mb-4 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
@@ -403,15 +425,22 @@ const ContactList = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <input
-                      type="checkbox"
-                      checked={
-                        contacts.length > 0 &&
-                        contacts.every(contact => selectedContacts.includes(contact.id))
-                      }
-                      onChange={handleSelectAllContacts}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
+                    <Tooltip 
+                      content="Seleccione todos los contactos de esta página"
+                      position="top"
+                      delay={300}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={
+                          contacts.length > 0 &&
+                          contacts.every(contact => selectedContacts.includes(contact.id))
+                        }
+                        onChange={handleSelectAllContacts}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        aria-label="Seleccionar todos los contactos"
+                      />
+                    </Tooltip>
                   </th>
                   <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Nombre
@@ -437,12 +466,19 @@ const ContactList = () => {
                 {Array.isArray(contacts) && contacts.map((contact) => (
                   <tr key={contact.id} className={selectedContacts.includes(contact.id) ? "bg-blue-50" : ""}>
                     <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        checked={selectedContacts.includes(contact.id)}
-                        onChange={() => handleSelectContact(contact.id)}
-                      />
+                      <Tooltip 
+                        content="Seleccione esta casilla para incluir el contacto en su mensaje"
+                        position="right"
+                        delay={300}
+                      >
+                        <input
+                          type="checkbox"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          checked={selectedContacts.includes(contact.id)}
+                          onChange={() => handleSelectContact(contact.id)}
+                          aria-label={`Seleccionar contacto ${contact.firstName} ${contact.lastName}`}
+                        />
+                      </Tooltip>
                     </td>
                     <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
