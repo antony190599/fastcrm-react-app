@@ -220,9 +220,7 @@ const InteractionHistory = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contacto
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                    Empresa
-                  </th>
+                  
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Estado
                   </th>
@@ -259,15 +257,7 @@ const InteractionHistory = () => {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      {log.contact?.company ? (
-                        <Link to={`/companies/${log.contact.company.id}`} className="text-sm text-gray-600 hover:underline">
-                          {log.contact.company.name}
-                        </Link>
-                      ) : (
-                        <span className="text-sm text-gray-500">N/A</span>
-                      )}
-                    </td>
+                    
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(log.status)}
                     </td>
