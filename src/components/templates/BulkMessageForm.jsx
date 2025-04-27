@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import messageService from '../../services/messageService';
 import templateService from '../../services/templateService';
 import AppHeader from '../common/AppHeader';
+import contactLogService from '../../services/contactLogService';
 
 // Define validation schema
 const validationSchema = yup.object().shape({
@@ -255,11 +256,18 @@ const BulkMessageForm = () => {
           const payload = {
             method: 'whatsapp',
             content: formData.content,
-            // No subject needed for WhatsApp
+            templateId: selectedTemplateId || null,
+            templateName: selectedTemplateId ? templates.find(t => t.id === selectedTemplateId)?.type : null
           };
           
           // Register the message even though it opens in a new window
-          await messageService.sendMessage(currentContact.id, payload);
+          const response = await messageService.sendMessage(currentContact.id, payload);
+          
+          // Create contact log
+          await contactLogService.createMessageLog(currentContact.id, {
+            ...payload,
+            messageId: response.data?.id
+          });
           
           // Open the link in a new tab
           window.open(waUrl, '_blank');
@@ -289,12 +297,20 @@ const BulkMessageForm = () => {
         const payload = {
           method: formData.method,
           content: formData.content,
-          subject: formData.method === 'email' ? formData.subject : undefined
+          subject: formData.method === 'email' ? formData.subject : undefined,
+          templateId: selectedTemplateId || null,
+          templateName: selectedTemplateId ? templates.find(t => t.id === selectedTemplateId)?.type : null
         };
         
         const response = await messageService.sendMessage(currentContact.id, payload);
         
         if (response.success) {
+          // Create contact log
+          await contactLogService.createMessageLog(currentContact.id, {
+            ...payload,
+            messageId: response.data?.id
+          });
+          
           setContactStatus(prev => ({
             ...prev,
             [currentContact.id]: 'sent'

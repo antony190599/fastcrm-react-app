@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import messageService from '../../services/messageService';
 import templateService from '../../services/templateService';
 import AppHeader from '../common/AppHeader';
+import contactLogService from '../../services/contactLogService';
 
 // Define validation schema
 const validationSchema = yup.object().shape({
@@ -227,6 +228,22 @@ const MessageForm = () => {
         // Construct the wa.me URL (WhatsApp's official click-to-chat link format)
         const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(formData.content)}`;
         
+        // Register message in backend before opening WhatsApp
+        const payload = {
+          method: 'whatsapp',
+          content: formData.content,
+          templateId: selectedTemplateId || null,
+          templateName: selectedTemplateId ? templates.find(t => t.id === selectedTemplateId)?.type : null
+        };
+        
+        const response = await messageService.sendMessage(formData.contactId, payload);
+        
+        // Create contact log
+        await contactLogService.createMessageLog(formData.contactId, {
+          ...payload,
+          messageId: response.data?.id
+        });
+        
         // Open the link in a new tab
         window.open(waUrl, '_blank');
         
@@ -248,7 +265,9 @@ const MessageForm = () => {
       // Otherwise proceed with API call for email or backend WhatsApp integration
       const payload = {
         method: formData.method,
-        content: formData.content
+        content: formData.content,
+        templateId: selectedTemplateId || null,
+        templateName: selectedTemplateId ? templates.find(t => t.id === selectedTemplateId)?.type : null
       };
       
       // Only include subject for email messages
@@ -259,6 +278,12 @@ const MessageForm = () => {
       const response = await messageService.sendMessage(formData.contactId, payload);
       
       if (response.success) {
+        // Create contact log
+        await contactLogService.createMessageLog(formData.contactId, {
+          ...payload,
+          messageId: response.data?.id
+        });
+        
         setSuccess(`Mensaje enviado correctamente vía ${formData.method === 'email' ? 'correo electrónico' : 'WhatsApp'}`);
         
         // Reset form after success

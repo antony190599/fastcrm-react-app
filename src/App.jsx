@@ -18,9 +18,12 @@ import CompanyDetail from './components/companies/CompanyDetail';
 import ContactList from './components/contacts/ContactList';
 import ContactForm from './components/contacts/ContactForm';
 import ContactDetail from './components/contacts/ContactDetail';
+import ContactLogsPage from './components/logs/ContactLogsPage';
 
 // Dashboard
 import Dashboard from './components/dashboard/Dashboard';
+
+import HistoryPage from './pages/HistoryPage';
 
 function App() {
   return (
@@ -49,6 +52,9 @@ function App() {
           <Route path="/contacts/new" element={<ContactForm isEditing={false} />} />
           <Route path="/contacts/edit/:id" element={<ContactForm isEditing={true} />} />
           <Route path="/contacts/:id" element={<ContactDetail />} />
+          <Route path="/contact-logs" element={<ContactLogsPage />} />
+
+          <Route path="/history" element={<HistoryPage />} />
         </Routes>
       </Layout>
     </Router>

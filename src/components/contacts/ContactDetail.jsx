@@ -3,6 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import contactService from '../../services/contactService';
 import DeleteConfirmation from '../common/DeleteConfirmation';
 import AppHeader from '../common/AppHeader';
+import ContactLogHistory from './ContactLogHistory';
+import ContactLogForm from './ContactLogForm';
+import contactLogService from '../../services/contactLogService';
 
 const ContactDetail = () => {
   const { id } = useParams();
@@ -14,6 +17,8 @@ const ContactDetail = () => {
     isOpen: false,
     contactId: null
   });
+  const [showLogForm, setShowLogForm] = useState(false);
+  const [refreshLogs, setRefreshLogs] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -61,6 +66,14 @@ const ContactDetail = () => {
 
   const handleSendMessage = () => {
     navigate(`/templates/send/${id}`, { state: { contact } });
+  };
+
+  // Función para manejar el registro exitoso
+  const handleLogSuccess = () => {
+    // Incrementar para refrescar el listado
+    setRefreshLogs(prev => prev + 1);
+    // Ocultar el formulario
+    setShowLogForm(false);
   };
 
   if (loading) {
@@ -208,6 +221,35 @@ const ContactDetail = () => {
               <p className="text-gray-500">No hay empresa asociada a este contacto.</p>
             )}
           </div>
+        </div>
+
+        {/* Sección de ContactLog */}
+        <div className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Historial de interacciones</h2>
+            <button 
+              onClick={() => setShowLogForm(!showLogForm)}
+              className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              {showLogForm ? 'Cancelar' : 'Nueva interacción'}
+            </button>
+          </div>
+          
+          {showLogForm && (
+            <ContactLogForm 
+              contactId={id} 
+              onSuccess={handleLogSuccess} 
+              onCancel={() => setShowLogForm(false)} 
+            />
+          )}
+          
+          <ContactLogHistory 
+            contactId={id}
+            key={refreshLogs} // Esto forzará una recarga cuando refreshLogs cambie
+          />
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200">
