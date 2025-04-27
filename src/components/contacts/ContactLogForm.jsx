@@ -68,11 +68,16 @@ const ContactLogForm = ({ contactId, onSuccess, onCancel }) => {
         method: formData.method,
         notes: formData.notes,
         status: formData.status,
-        date: new Date().toISOString()
+        timestamp: new Date().toISOString()
       };
 
-      await contactLogService.createContactLog(contactLogData);
-      onSuccess();
+      const response = await contactLogService.createContactLog(contactLogData);
+      
+      if (response.success) {
+        onSuccess();
+      } else {
+        setError(response.message || 'Error al guardar la interacción');
+      }
     } catch (err) {
       setError(err.message || 'Error al guardar la interacción');
     } finally {

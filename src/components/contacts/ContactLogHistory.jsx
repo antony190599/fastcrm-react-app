@@ -5,15 +5,22 @@ const ContactLogHistory = ({ contactId }) => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   useEffect(() => {
     fetchContactLogs();
-  }, [contactId]);
+  }, [contactId, currentPage, itemsPerPage]);
 
   const fetchContactLogs = async () => {
     try {
       setLoading(true);
-      const response = await contactLogService.getContactLogs(contactId);
+      const options = {
+        page: currentPage,
+        limit: itemsPerPage
+      };
+      
+      const response = await contactLogService.getContactLogs(contactId, options);
       
       if (response.success) {
         setLogs(response.data || []);
@@ -37,6 +44,7 @@ const ContactLogHistory = ({ contactId }) => {
       case 'pending':
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pendiente</span>;
       case 'failed':
+      case 'error':
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">No exitoso</span>;
       default:
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{status}</span>;
@@ -127,7 +135,7 @@ const ContactLogHistory = ({ contactId }) => {
               </div>
             </div>
             <span className="text-sm text-gray-500">
-              {new Date(log.createdAt).toLocaleDateString()} {new Date(log.createdAt).toLocaleTimeString()}
+              {new Date(log.createdAt || log.timestamp).toLocaleDateString()} {new Date(log.createdAt || log.timestamp).toLocaleTimeString()}
             </span>
           </div>
           <div className="text-gray-600 text-sm mt-2 whitespace-pre-wrap">
@@ -135,6 +143,17 @@ const ContactLogHistory = ({ contactId }) => {
           </div>
         </div>
       ))}
+      
+      {logs.length > 0 && logs.length === itemsPerPage && (
+        <div className="flex justify-center mt-4">
+          <button 
+            className="text-blue-600 hover:text-blue-800 text-sm"
+            onClick={() => setItemsPerPage(prev => prev + 5)}
+          >
+            Cargar más interacciones
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import contactLogService from '../../services/contactLogService';
-import { CalendarIcon, EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { CalendarIcon, EnvelopeIcon, PhoneIcon, ChatBubbleLeftRightIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import AppHeader from '../common/AppHeader';
+import Pagination from '../common/Pagination';
 
 const InteractionHistory = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
   const [filters, setFilters] = useState({
     method: '',
     status: '',
@@ -16,23 +22,34 @@ const InteractionHistory = () => {
 
   useEffect(() => {
     fetchLogs();
-  }, [filters]);
+  }, [filters, currentPage, itemsPerPage]);
 
   const fetchLogs = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Only pass non-empty filters
-      const activeFilters = {};
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value) activeFilters[key] = value;
-      });
+      const options = {
+        page: currentPage,
+        limit: itemsPerPage,
+        ...filters
+      };
       
-      const response = await contactLogService.getAllLogs(activeFilters);
+      // Filter out empty values
+      Object.keys(options).forEach(key => 
+        !options[key] && delete options[key]
+      );
+      
+      const response = await contactLogService.getAllLogs(options);
       
       if (response.success) {
         setLogs(response.data || []);
+        
+        if (response.meta && response.meta.pagination) {
+          setCurrentPage(response.meta.pagination.currentPage);
+          setTotalPages(response.meta.pagination.totalPages);
+          setTotalItems(response.meta.pagination.totalItems);
+        }
       } else {
         setError(response.message || 'Error al cargar el historial');
       }
@@ -50,6 +67,16 @@ const InteractionHistory = () => {
       ...prev,
       [name]: value
     }));
+    setCurrentPage(1); // Reset to first page when filter changes
+  };
+  
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (limit) => {
+    setItemsPerPage(limit);
+    setCurrentPage(1);
   };
   
   const clearFilters = () => {
@@ -59,6 +86,7 @@ const InteractionHistory = () => {
       startDate: '',
       endDate: ''
     });
+    setCurrentPage(1);
   };
 
   const getMethodIcon = (method) => {
@@ -66,40 +94,46 @@ const InteractionHistory = () => {
       case 'email':
         return <EnvelopeIcon className="h-5 w-5 text-blue-600" />;
       case 'whatsapp':
-        return <PhoneIcon className="h-5 w-5 text-green-600" />;
+        return <ChatBubbleLeftRightIcon className="h-5 w-5 text-green-600" />;
+      case 'call':
+        return <PhoneIcon className="h-5 w-5 text-indigo-600" />;
+      case 'meeting':
+        return <UserGroupIcon className="h-5 w-5 text-purple-600" />;
       default:
         return <CalendarIcon className="h-5 w-5 text-gray-600" />;
     }
   };
 
   const getStatusBadge = (status) => {
-    const statusClasses = {
-      'success': 'bg-green-100 text-green-800',
-      'exitoso': 'bg-green-100 text-green-800',
-      'error': 'bg-red-100 text-red-800',
-      'fallido': 'bg-red-100 text-red-800',
-      'pending': 'bg-yellow-100 text-yellow-800',
-      'pendiente': 'bg-yellow-100 text-yellow-800'
-    };
-
-    const displayText = {
-      'success': 'Exitoso',
-      'exitoso': 'Exitoso',
-      'error': 'Fallido',
-      'fallido': 'Fallido',
-      'pending': 'Pendiente',
-      'pendiente': 'Pendiente'
-    };
-
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClasses[status] || 'bg-gray-100 text-gray-800'}`}>
-        {displayText[status] || status}
-      </span>
-    );
+    switch(status) {
+      case 'success':
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Exitoso</span>;
+      case 'error':
+      case 'failed':
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Error</span>;
+      case 'pending':
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pendiente</span>;
+      default:
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{status || 'N/A'}</span>;
+    }
   };
-  
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
+
   return (
-    <div>
+    <div className="mx-auto px-4 py-8">
+      <AppHeader 
+        title="Historial de Interacciones"
+        breadcrumbs={[
+          { name: 'Inicio', href: '/' },
+          { name: 'Historial de Interacciones' }
+        ]}
+      />
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
@@ -107,39 +141,38 @@ const InteractionHistory = () => {
       )}
 
       <div className="bg-white shadow rounded-lg p-4 md:p-6 mb-6">
-        <h2 className="text-lg font-medium mb-4">Filtros</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Filtros</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Método</label>
             <select
               name="method"
               value={filters.method}
               onChange={handleFilterChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Todos</option>
               <option value="email">Email</option>
               <option value="whatsapp">WhatsApp</option>
               <option value="call">Llamada</option>
               <option value="meeting">Reunión</option>
+              <option value="other">Otro</option>
             </select>
           </div>
-          
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
             <select
               name="status"
               value={filters.status}
               onChange={handleFilterChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Todos</option>
               <option value="success">Exitoso</option>
-              <option value="error">Fallido</option>
+              <option value="failed">Error</option>
               <option value="pending">Pendiente</option>
             </select>
           </div>
-          
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Fecha inicio</label>
             <input
@@ -147,10 +180,9 @@ const InteractionHistory = () => {
               name="startDate"
               value={filters.startDate}
               onChange={handleFilterChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Fecha fin</label>
             <input
@@ -158,12 +190,11 @@ const InteractionHistory = () => {
               name="endDate"
               value={filters.endDate}
               onChange={handleFilterChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
-        
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end">
           <button
             onClick={clearFilters}
             className="text-blue-600 hover:text-blue-800 text-sm"
@@ -199,6 +230,9 @@ const InteractionHistory = () => {
                     Tipo
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Notas
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Fecha
                   </th>
                 </tr>
@@ -215,30 +249,45 @@ const InteractionHistory = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {log.contact && (
-                        <Link to={`/contacts/${log.contact.id}`} className="text-sm text-blue-600 hover:underline">
+                      {log.contact ? (
+                        <Link to={`/contacts/${log.contactId}`} className="text-sm text-blue-600 hover:underline">
                           {log.contact.firstName} {log.contact.lastName}
                         </Link>
+                      ) : (
+                        <span className="text-sm text-gray-500">
+                          {log.contactId ? `ID: ${log.contactId.substring(0, 8)}...` : 'N/A'}
+                        </span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      {log.contact?.company && (
+                      {log.contact?.company ? (
                         <Link to={`/companies/${log.contact.company.id}`} className="text-sm text-gray-600 hover:underline">
                           {log.contact.company.name}
                         </Link>
+                      ) : (
+                        <span className="text-sm text-gray-500">N/A</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(log.status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                      <span className="text-sm text-gray-600">
-                        {log.templateName || 'Personalizado'}
-                      </span>
+                      {log.templateName ? (
+                        <span className="text-sm text-gray-600">
+                          {log.templateName}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-500">Personalizado</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 max-w-xs truncate">
+                        {log.notes || 'N/A'}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-600">
-                        {new Date(log.createdAt).toLocaleString()}
+                        {formatDate(log.createdAt || log.timestamp)}
                       </span>
                     </td>
                   </tr>
@@ -246,6 +295,18 @@ const InteractionHistory = () => {
               </tbody>
             </table>
           </div>
+          
+          {totalPages > 1 && (
+            <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
+            </div>
+          )}
         </div>
       ) : (
         <div className="bg-white p-6 text-center rounded-lg shadow">
